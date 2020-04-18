@@ -24,4 +24,4 @@ python ./mechaSVG.pyw
 
 # References
 
-¹Kozuch, S. & Shail, S. *Acc. Chem. Res.* **2011**, *44*, 101.
+¹Kozuch, S. & Shaik, S. *Acc. Chem. Res.* **2011**, *44*, 101.
