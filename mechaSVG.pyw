@@ -1,96 +1,487 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import functools, os, math, random, datetime
-################################### RELATIVELY STRAIGHTFORWARD MODIFICATIONS ###########################################
-# number of structures for each path
-n_structures = 19
-#run command
-windons_command = "start chrome.exe ./.E_profile.svg"
-linux_command = "chrome ./.E_profile.svg"
-command_line = windons_command if os.name == "nt" else linux_command
-# SVG colors
-menu_a = ["grey","black","blue","darkblue","red","darkred","green","darkgreen"]
-#SVG line widths
-menu_b = ["2","3","4","5","6"]
-#SVG line stiles
-svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"'}
-# Random catalytic cycle generator
-trickster = True # Are you a trickster?
+import os, random, datetime, functools, math
 
-########################### YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING #################################
-
-menu_c = list(svg_repl.keys())
-# TDI and TDTS placement corrections
-placement = {"Top"    :[[-37,-22,-7],[-22,-7,0]],
-			 "Midle"  :[[-5,15,30],[-5,15,30]],
-			 "Bottom" :[[15,30,45],[15,30,0]]}
-menu_d = list(placement.keys())
-menu_e = ["A","B","C","D","E"]
-menu_f = [" ","TS","INT"]
-def is_str_float(i):
-	try: float(i); return True
-	except ValueError: return False
+class Preferences:
+	def __init__(self):
+		################################### RELATIVELY STRAIGHTFORWARD MODIFICATIONS ###########################################
+		# number of structures for each path
+		self.n_structures = 19 #max = 25 for random catalytic cycle generator
+		#run command
+		self.windons_command = "start chrome.exe ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
+		self.linux_command = "chrome ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
+		self.command_line = self.windons_command if os.name == "nt" else self.linux_command
+		# SVG colors
+		self.menu_a = ["grey","black","blue","darkblue","red","darkred","green","darkgreen"]
+		#SVG line widths
+		self.menu_b = ["2","3","4","5","6"]
+		#SVG line stiles
+		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"'}
+		# Random catalytic cycle generator
+		self.trickster = True # Include random catalytic cycle generator?
+		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
+		self.menu_c = list(self.svg_repl.keys())
+		# TDI and TDTS placement corrections
+		self.placement = {"Top"    :[[-37,-22,-7],[-22,-7,0]],
+					 "Midle"  :[[-5,15,30],[-5,15,30]],
+					 "Bottom" :[[15,30,45],[15,30,0]]}
+		self.menu_d = list(self.placement.keys())
+		self.menu_e = [a for a in "ABCDE"] #Will change the number of Paths available
+		self.menu_f = ["opt_{}".format(a.lower()) for a in self.menu_e]
+		self.menu_g = ["tab_{}".format(a.lower()) for a in self.menu_e]
+		self.menu_h = ["Path {}".format(a) for a in self.menu_e]
+		self.menu_i = ["#{}".format(a) for a in self.menu_e]
+		self.menu_z = [" ","TS","INT"]
 
 class State:
-	def __init__(self, text, wide=10, spam_request=None):
-		self.wide = wide
-		self.spam_request = spam_request
+	def __init__(self, text):
 		self.list = [a.split("/|") for a in text]
-		self.tab_a, self.opt_a = [], []
-		self.tab_b, self.opt_b = [], []
-		self.tab_c, self.opt_c = [], []
-		self.tab_d, self.opt_d = [], []
-		self.tab_e, self.opt_e = [], []
+		for a,b in zip(pref.menu_f,pref.menu_g): setattr(self,a,[]);setattr(self,b,[])
 		self.con = []
 		tab, opt, con = [], [], []
 		for i,a in enumerate(self.list):
-			if len(a) not in [5,3,1,7]: continue
 			if len(a) == 5:	tab.append(a)
 			elif len(a) == 3: opt.append(a)
 			elif len(a) == 1:
 				if a[0] == "#CON": self.con = con; break
-				if not a[0] in ["#{}".format(n) for n in menu_e]: continue
-				if a[0] == "#A": self.tab_a = tab; self.opt_a = opt; tab, opt = [], []
-				elif a[0] == "#B": self.tab_b = tab; self.opt_b = opt; tab, opt = [], []
-				elif a[0] == "#C": self.tab_c = tab; self.opt_c = opt; tab, opt = [], []
-				elif a[0] == "#D": self.tab_d = tab; self.opt_d = opt; tab, opt = [], []
-				elif a[0] == "#E": self.tab_e = tab; self.opt_e = opt; tab, opt = [], []
+				if not a[0] in ["#{}".format(n) for n in pref.menu_e]: continue
+				for b,c,d in zip(pref.menu_i,pref.menu_g,pref.menu_f):
+					if a[0] == b: setattr(self,c,tab);setattr(self,d,opt); tab, opt = [],[]
 			elif len(a) == 7: con.append(a)
 	def print_interpretation(self):
 		for a in vars(self):
 			print(a,"---->",getattr(self,a))
+
+class Note(ttk.Notebook):
+	def __init__(self,parent,*args,**kwargs):
+		ttk.Notebook.__init__(self,parent,*args,**kwargs)
+		for a,b in zip(pref.menu_g,pref.menu_h):
+			setattr(self, a,TabFramePaths(self,name=b))
+		self.tab_connections = TabFrameConnections(self,name="Connections")
+		self.grid(column=0,row=0,sticky='news')
+		self.grid_columnconfigure(0, weight=1)
+class TabFramePaths(ttk.Frame):
+	def __init__(self,parent,name,*args,**kwargs):
+		ttk.Frame.__init__(self,parent,*args,**kwargs,height=50)
+		self.parent = parent
+		self.parent.add(self, text=name)
+		#########
+		self._build_options()
+		#######
+		for n in range(3):
+			self.grid_columnconfigure(n+2, weight=[2,1,1][n])
+		#########
+		for a,b in zip([1,2,3,4,5,7],["Type",'Structure Name','Free Energy','Entalphy',"Move",'Alignment']):
+			label = tk.Label(self, text=b)
+			if a == 5: label.grid(column=a, row=9, rowspan=1, columnspan = 2,sticky="news")
+			else: label.grid(column=a, row=9, rowspan=1,sticky="news")
+		#########
+		self.data = [[None,None,None,None,None] for _ in range(pref.n_structures)]
+		#########
+		for n in range(pref.n_structures):
+			label = tk.Label(self, text='#{}'.format(n+1))
+			label.grid(column=0, row=10+n, rowspan=1)
+			for b in [1,2,3]:
+				self.data[n][b] = tk.Entry(self,justify=tk.CENTER,bd=2,width=10 if b in [2,3] else 15)
+				self.data[n][b].insert(0,"")
+				self.data[n][b].grid(column=1+b, row=10+n,padx="0",sticky="news")
+			if not n == 0:
+				button = tk.Button(self, text=u'\u2191', command=lambda x = n: self._move(x,x-1), padx="1")
+				button.config(width=1)
+				button.grid(column=5, row=10 + n)
+			if not n+1 == pref.n_structures:
+				button = tk.Button(self, text=u'\u2193', command=lambda x = n: self._move(x,x+1), padx="1")
+				button.config(width=1)
+				button.grid(column=6, row=10 + n)
+			self.data[n][0] = tk.StringVar()
+			menu = tk.OptionMenu(self,self.data[n][0],*pref.menu_z)
+			self.data[n][0].set(pref.menu_z[0])
+			menu.config(width="3")
+			menu.grid(column=1, row=10 + n)
+			self.data[n][4] = tk.StringVar()
+			menu = tk.OptionMenu(self,self.data[n][4],*pref.menu_d)
+			self.data[n][4].set(pref.menu_d[1])
+			menu.config(width="6")
+			menu.grid(column=7, row=10 + n)
+	def _build_options(self):
+		self.option_menu = ttk.Frame(self)
+		setattr(self.option_menu,"line_opt_data",[[None,None,None],[None,None,None]])
+		for n,name in enumerate(["Main[Color/Width/Strike]","Link[Color/Width/Strike]"]):
+			box = self.boxify(self.option_menu,name=name,column=n)
+			for a in range(3):box.grid_columnconfigure(a, weight=1)
+			for a,b in zip([0,1,2],[pref.menu_a,pref.menu_b,pref.menu_c]):
+				self.option_menu.line_opt_data[n][a] = tk.StringVar()
+				color_menu = tk.OptionMenu(box, self.option_menu.line_opt_data[n][a],*b)
+				self.option_menu.line_opt_data[n][a].set(b[[1,1,0][a] if n == 0 else [1,0,2][a]])
+				color_menu.config(width=["9","1","7"][a])
+				color_menu.grid(column=a,row=0,sticky="news")
+		self.option_menu.grid(column=0,row=0,columnspan = 8,rowspan=8,sticky="news")
+		self.option_menu.grid_columnconfigure([0,1], weight=1)
+	def _move(self,n,x):
+		line_n = [a.get() for a in self.data[n]]
+		other = [a.get() for a in self.data[x]]
+		for i, a in enumerate(other):
+			if type(self.data[n][i]) is tk.Entry:
+				self.data[n][i].delete(0,tk.END)
+				self.data[n][i].insert(0,a)
+			elif type(self.data[n][i]) is tk.StringVar:
+				self.data[n][i].set(a)
+		for i, a in enumerate(line_n):
+			if type(self.data[x][i]) is tk.Entry:
+				self.data[x][i].delete(0,tk.END)
+				self.data[x][i].insert(0,a)
+			elif type(self.data[x][i]) is tk.StringVar:
+				self.data[x][i].set(a)
+	@staticmethod
+	def boxify(other, name, column):
+		box = ttk.LabelFrame(other, text=name)
+		box.grid(column=column, row=0, sticky="news")
+		return box
+class TabFrameConnections(ttk.Frame):
+	def __init__(self,parent,name,*args,**kwargs):
+		ttk.Frame.__init__(self,parent,*args,**kwargs)
+		self.parent = parent
+		self.parent.add(self, text=name)
+		self.data = [[None,None,None,None,None,None,None] for _ in range(8)]
+		for n in range(8):
+			con = tk.LabelFrame(self,text="Conector {}".format(n+1))
+			con.grid(column=0, row=n*2,  columnspan=5, pady="0",padx="2", rowspan=2,sticky="news")
+			for b in range(2):
+				label = tk.Label(con, text="From path" if b ==0 else "to path")
+				label.grid(column=b*4+0, row=0, sticky="w")
+				self.data[n][b*2] = tk.StringVar()
+				menu = tk.OptionMenu(con,self.data[n][b*2],*pref.menu_e)
+				menu.config(width="2")
+				menu.grid(column=b*4+1, row=0,sticky = "e")
+				label = tk.Label(con, text=", number" if b ==0 else ", number")
+				label.grid(column=b * 4 + 2, row=0, sticky="w")
+				self.data[n][b*2+1] = tk.StringVar()
+				menu = tk.OptionMenu(con,self.data[n][b*2+1],*[a+1 for a in range(pref.n_structures)])
+				menu.config(width="2")
+				menu.grid(column=b*4+3, row=0,sticky = "e")
+			label = tk.Label(con,text="Color/Width/Strike:")
+			label.grid(column=0,row=1,columnspan=2)
+			for a, b in zip([0, 1, 2], [pref.menu_a, pref.menu_b, pref.menu_c]):
+				self.data[n][a+4] = tk.StringVar()
+				self.color_menu = tk.OptionMenu(con, self.data[n][a+4], *b)
+				self.data[n][a+4].set(b[0])
+				self.color_menu.config(width="12")
+				self.color_menu.grid(column=2 + a*2,columnspan =2, row=1)
+class GeneralMenu(tk.LabelFrame):
+	def __init__(self,parent,name,*args,**kwargs):
+		ttk.LabelFrame.__init__(self,parent,text=name,*args,**kwargs)
+		self.include = []
+		self.main = []
+		self.span = []
+		self.titles = ["Main title", "Energy level", "Reaction cordinate"]
+		self.command = ""
+		self.aesthetics = []
+		###BUILD
+		self._build_all()
+	def _build_all(self):
+		self.note = ttk.Notebook(self.boxify("Advanced options", 2))
+		self.note.grid(column=0, row=0, sticky="news")
+		self.note.grid_columnconfigure(0, weight=1)
+		self._build_other_opt()
+		self._build_span_opt()
+		self._build_aesthetics()
+		self._build_path_sel()
+		self._build_titles(6)
+		self._build_loadsave(7)
+		if pref.trickster: self._build_generator(8)
+		self._build_preview(9)
+		self._build_message(10)
+	def _build_path_sel(self):
+		box = self.framefy("Include")
+		for i,a in enumerate([*pref.menu_h,"Connections"]):
+			self.include.append(tk.IntVar(value=1))
+			c1 = tk.Checkbutton(box, text=a, variable=self.include[i], onvalue=1, offvalue=0)
+			c1.grid(column=i,row=0)
+	def _build_other_opt(self):
+		box = self.framefy("Main")
+		options = ["Use enthalpy instead of free energy","Use comma as decimal","Include complementary (H or G values)"]
+		for i,a in enumerate(options):
+			self.main.append(tk.IntVar(value=0))
+			c1 = tk.Checkbutton(box, text=a, variable=self.main[i], onvalue=1, offvalue=0)
+			c1.grid(column=i%2,row=i//2,sticky="w")
+	def _build_span_opt(self):
+		box = self.framefy("Span")
+		box.grid_columnconfigure(1, weight=1)
+		options = ["Atempt span","Irrespective of type (TS/INT)"]
+		for i,a in enumerate(options):
+			self.span.append(tk.IntVar(value=0))
+			c1 = tk.Checkbutton(box, text=a, variable=self.span[i], onvalue=1, offvalue=0)
+			c1.grid(column=i*2,row=0,columnspan=2,sticky="news")
+		label = tk.Label(box, text="Input units:")
+		label.grid(column=0, row=1,sticky="news")
+		self.span.append(tk.StringVar())
+		options = ["kcal/mol","kJ/mol"]
+		menu = tk.OptionMenu(box, self.span[-1], *options)
+		self.span[-1].set(options[0])
+		menu.config(width="8")
+		menu.grid(column=1, row=1,sticky="w")
+		label = tk.Label(box, text="Temperature (°C):")
+		label.grid(column=2, row=1)
+		self.span.append(tk.Entry(box, justify=tk.CENTER, bd=3, width=6))
+		self.span[-1].insert(0, "25")
+		self.span[-1].grid(column=3, row=1, padx="3",pady="4", sticky="news")
+
+
+	def _build_aesthetics(self):
+		box = self.framefy("Aesthetics")
+		a = ["   ", "( )", "[ ]", r"{ }", '" "', "' '"]
+		b = [a * 2 for a in range(11)]
+		c = [1,2]
+		e = [a,a,b,c]
+		f = ["G:","H:","Width:","Decimal"]
+		for a,(b,c) in enumerate(zip(f,e)):
+			label = tk.Label(box,text=b)
+			label.grid(column=2*a,row=0)
+			self.aesthetics.append(tk.StringVar())
+			menu = tk.OptionMenu(box, self.aesthetics[a], *c)
+			menu.config(width="4")
+			menu.grid(column=a * 2 + 1, row=0)
+		for i,a in enumerate(["   ","( )",10,1]):
+			self.aesthetics[i].set(a)
+	def _build_titles(self,idx):
+		box = self.boxify("Titles",idx)
+		for a,b,c in zip([0,1,2],self.titles,["Main:","y:","x:"]):
+			label = tk.Label(box, text=c,width=10)
+			label.grid(column=0, row=a)
+			self.titles[a] = tk.Entry(box, justify=tk.CENTER, bd=2, width=50)
+			self.titles[a].insert(0, b)
+			self.titles[a].grid(column=1, row=a, padx="0", sticky="news")
+	def _build_loadsave(self,idx):
+		box = self.boxify("Load & Save States", idx)
+		label = tk.Label(box, text="A state contanis path's and connection's info)")
+		label.grid(column=0,row=0,sticky="w")
+		button = tk.Button(box, text="Load", command=self.load_state, padx="1")
+		button.config(width=7)
+		button.grid(column=1,row=0,sticky="e")
+		button = tk.Button(box, text="Save as", command=self._save_as, padx="1")
+		button.config(width=7)
+		button.grid(column=2,row=0,sticky="e")
+		button = tk.Button(box, text="Save", command=self._save, padx="1")
+		button.config(width=7)
+		button.grid(column=3,row=0,sticky="e")
+		box.grid_columnconfigure(0, weight=1)
+	def _build_generator(self,idx):
+		box = self.boxify("Generate random catalytic cycle (Trickster)", idx)
+		label = tk.Label(box, text="Random catalytic cycle generator")
+		label.pack(side=tk.LEFT)
+		button = tk.Button(box, text="Fill in data", command=self._ask_confirmation, padx="1")
+		button.config(width=10)
+		button.pack(side=tk.RIGHT)
+	def _build_preview(self,idx):
+		box = self.boxify("Preview with either command or default manager, or save svg file", idx)
+		self.command = tk.Entry(box, justify=tk.CENTER, bd=4)
+		self.command.insert(0, pref.command_line)
+		self.command.grid(column=0,row=0,sticky="news")
+		button = tk.Button(box, text="Command", command=self.run_data_a, padx="1")
+		button.config(width=8)
+		button.grid(column=1,row=0,sticky="e")
+		button = tk.Button(box, text="Default", command=self.run_data_b, padx="1")
+		button.config(width=8)
+		button.grid(column=2,row=0,sticky="e")
+		button = tk.Button(box, text="Save svg", command=self.return_svg, padx="1")
+		button.config(width=8)
+		button.grid(column=3,row=0,sticky="e")
+		box.grid_columnconfigure(0, weight=1)
+
+	def _build_message(self,idx):
+		box = self.boxify("Message",idx)
+		m = tk.Message(box)
+		scrollbar = tk.Scrollbar(box)
+		scrollbar.grid(column=1,row=0,sticky="nes")
+		self.msg = tk.Text(box,width=40,yscrollcommand=scrollbar.set,height=12 if pref.trickster else 18,state="disabled",background=m.cget("background"),relief="flat",wrap=tk.WORD,font=("Helvetica", 8))
+		m.destroy()
+		self.msg.grid(column=0,row=0,sticky="news")
+		self.message("Welcome!")
+		box.grid_rowconfigure(0, weight=1)
+		box.grid_rowconfigure(0, weight=1)
+		box.grid_columnconfigure(0, weight=1)
+		box.grid_columnconfigure(0, weight=1)
+		self.grid_rowconfigure(idx, weight=1)
+	def _save(self):
+		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
+		try:
+			with open(self.f,"w") as out: out.write(txt)
+		except AttributeError: self._save_as()
+	def _save_as(self):
+		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
+		self.f = tk.filedialog.asksaveasfilename(defaultextension=".ssf",title="Save state",filetypes = [("Saved State File", ".ssf")])
+		try:
+			with open(self.f,"w") as out: out.write(txt)
+		except FileNotFoundError: pass
+	def fill_in(self):
+		names = "ABCDEFGHIJKLMNOPQRSTUVXYZ"
+		size = random.random()
+		max_value = min(len(names), pref.n_structures)
+		lenght = random.randint(1,max_value)
+		for i,n in zip(range(max_value),names):
+			value = size*random.randrange(-100,100)
+			for idx in range(len(note.tab_a.data[i])):
+				if idx == 1:
+					note.tab_a.data[i][idx].delete(0, tk.END)
+					if i+1 < lenght: note.tab_a.data[i][idx].insert(0, n)
+					elif i + 1 == lenght: note.tab_a.data[i][idx].insert(0, "A'")
+				elif idx == 2:
+					note.tab_a.data[i][idx].delete(0, tk.END)
+					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value))
+				elif idx == 3:
+					note.tab_a.data[i][idx].delete(0, tk.END)
+					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value + random.choice([-random.random(), +random.random()])))
+				elif idx == 4:
+					note.tab_a.data[i][idx].set(pref.menu_d[1])
+		max_v, min_v = None, None
+		for i in range(max_value):
+			if max_v is None: max_v = [i,note.tab_a.data[i][2].get()]
+			if min_v is None: min_v = [i,note.tab_a.data[i][2].get()]
+			if i < lenght and float(note.tab_a.data[i][2].get()) > float(max_v[1]): max_v = [i, note.tab_a.data[i][2].get()]
+			if i < lenght and float(note.tab_a.data[i][2].get()) < float(min_v[1]) : min_v = [i, note.tab_a.data[i][2].get()]
+			if i == 0: note.tab_a.data[i][0].set("INT")
+			elif i+1 == lenght: note.tab_a.data[i][0].set("INT")
+			elif i >= lenght: note.tab_a.data[i][0].set("  ")
+			else:
+				if float(note.tab_a.data[i-1][2].get()) < float(note.tab_a.data[i][2].get()) > float(note.tab_a.data[i+1][2].get()):
+					note.tab_a.data[i][0].set("TS")
+				else:
+					note.tab_a.data[i][0].set("INT")
+		note.tab_a.data[max_v[0]][4].set(pref.menu_d[2])
+		note.tab_a.data[min_v[0]][4].set(pref.menu_d[0])
+	def _ask_confirmation(self):
+		msgbox = tk.messagebox.askquestion('Fill in random catalytic cycle', 'Are you sure? All unsaved data on Path A will be lost!', icon='warning')
+		if msgbox == "yes":self.fill_in()
+
+	def message(self,text):
+		now = datetime.datetime.now()
+		self.msg.configure(state="normal")
+		self.msg.tag_add("start", "0.0", tk.END)
+		self.msg.tag_config("start", foreground="grey")
+		if type(text) == str: text = [text]
+		for txt in text:
+			self.msg.insert("1.0",txt+"\n")
+		self.msg.insert("1.0", "[" + ":".join(["{:02d}".format(a) for a in [now.hour, now.minute, now.second]]) + "] "+"\n")
+		self.msg.configure(state="disabled")
+	def boxify(self,name,row):
+		box = ttk.LabelFrame(self, text=name)
+		box.grid(column=0, row=row, sticky="news")
+		box.grid_columnconfigure(0, weight=1)
+		return box
+	def framefy(self,name):
+		x = tk.Frame()
+		x.grid(column=0, row=0, sticky="news")
+		x.grid_columnconfigure(0, weight=1)
+		self.note.add(x,text=name)
+		return x
+	def print_data(self):
+		notes = [getattr(note,a) for a in pref.menu_g]
+		for a,b in zip(notes,pref.menu_e):
+			print("NOTE {}".format(b))
+			for idx,line in enumerate(getattr(a,"data")):
+				if any(c.get().strip() != "" for c in line[:-1]):
+					print("#{}".format(idx+1),[n.get() for n in line])
+		print("NOTE CONNECTIONS")
+		for idx,a in enumerate(note.tab_connections.data):
+			if any(c.get().strip() != "" for c in a[:-3]):
+				print("#{}".format(idx + 1), [n.get() for n in a])
+	def gen_data(self):
+		notes = [getattr(note,a) for a in pref.menu_g]
+		raw_data = []
+		for a,b in zip(notes,pref.menu_e):
+			for idx,line in enumerate(getattr(a,"data")):
+				c = [n.get() for n in line]
+				assert all("/|" not in d for d in c), self.message("'/|' is not allowed in names or energy values")
+				assert all("/$" not in d for d in c), self.message("'/$' is not allowed in names or energy values")
+				raw_data.append("/|".join(c))
+			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[0]]))
+			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[1]]))
+			raw_data.append("#{}".format(b))
+		for idx,a in enumerate(note.tab_connections.data):
+				raw_data.append("/|".join([n.get() for n in a]))
+		raw_data.append("#CON")
+		return raw_data
+	def load_state(self):
+		with tk.filedialog.askopenfile(mode="r",title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")]) as file:
+			state = "".join(file.read().splitlines()).split("/$")
+		state = State(state)
+		notes = [getattr(note,a) for a in pref.menu_g]
+		dat_states = [getattr(state,a) for a in pref.menu_g]
+		opt_states = [getattr(state,a) for a in pref.menu_f]
+		for a,b,c in zip(notes,dat_states,opt_states):
+			for n in range(3):
+				for d in range(2):
+					a.option_menu.line_opt_data[d][n].set(c[0][n])
+			for i,line in enumerate(b):
+				for n in range(3):
+					a.data[i][n+1].delete(0,tk.END)
+					a.data[i][n+1].insert(0,line[n+1])
+				a.data[i][0].set(line[0])
+				a.data[i][4].set(line[4])
+		for i,line in enumerate(state.con):
+			for n in range(7):
+				note.tab_connections.data[i][n].set(line[n])
+	def save_svg_as(self):
+		return tk.filedialog.asksaveasfilename(defaultextension=".svg", title="Save svg", filetypes=[("Scalable Vector Graphics", ".svg")])
+	def run_data_a(self):
+		self.return_svg(promp=False); os.system(self.command.get())
+	def run_data_b(self):
+		self.return_svg(promp=False); os.startfile(os.path.join(os.getcwd(), ".E_profile.svg"))
+	def return_svg(self,promp=True):
+		svg_name = None if promp == False else self.save_svg_as()
+		kwargs = {
+			"state": State(self.gen_data()), #ok
+			"include" : [a.get() for a in self.include], #ok
+			"title" : {a:b.get() for a,b in zip(["main","y","x"],self.titles)},#ok
+			"main" : {a: b.get() for a, b in zip(["energy", "comma", "include"], self.main)}, #ok
+			"aesthetics" : {a:b.get() for a,b in zip(["g","h","width","decimal"],self.aesthetics)},#ok
+			"span" : {a:b.get() for a,b in zip(["span","irrespective","units","temperature"],self.span)}
+		}
+		msg = SvgGenEsp(**kwargs).save_svg(svg_name)
+		if not msg is None: self.message(msg)
+
 class SvgGenEsp:
-	def __init__(self,state,tick,title,tick_options,aesthetics,span_opt):
+	def __init__(self,state,include,title,main,aesthetics,span):
+		self.span_worthy = True
+		self.msg = []
 		self.aesthetics = aesthetics
-		self.wide = [20-int(aesthetics[-2]),40+int(aesthetics[-2])]
-		self.g_h_sep = aesthetics[0:2]
-		self.state = state
-		self.tick = tick
-		self.span_opt = span_opt
-		self.e_source = 4 if tick_options["energy"] == 1 else 3
+		self.wide = [20-int(aesthetics["width"]),40+int(aesthetics["width"])]
+		self.include = include
+		self.span = span
+		self.e_source = 4 if main["energy"] == 1 else 3
 		self.e_complement = 3 if self.e_source == 4 else 4
-		self.tab_a_v = [[i + 1, *a] for i, a in enumerate(getattr(self.state, "tab_a")) if is_str_float(a[self.e_source-1].replace(",","."))]
-		self.tab_a_v = [[float(b.replace(",",".")) if i == self.e_source else b for i,b in enumerate(a)] for a in self.tab_a_v]
-		self.tab_b_v = [[i + 1, *a] for i, a in enumerate(getattr(self.state, "tab_b")) if is_str_float(a[self.e_source-1].replace(",","."))]
-		self.tab_b_v = [[float(b.replace(",",".")) if i == self.e_source else b for i, b in enumerate(a)] for a in self.tab_b_v]
-		self.tab_c_v = [[i + 1, *a] for i, a in enumerate(getattr(self.state, "tab_c")) if is_str_float(a[self.e_source-1].replace(",","."))]
-		self.tab_c_v = [[float(b.replace(",",".")) if i == self.e_source else b for i, b in enumerate(a)] for a in self.tab_c_v]
-		self.tab_d_v = [[i + 1, *a] for i, a in enumerate(getattr(self.state, "tab_d")) if is_str_float(a[self.e_source-1].replace(",","."))]
-		self.tab_d_v = [[float(b.replace(",",".")) if i == self.e_source else b for i, b in enumerate(a)] for a in self.tab_d_v]
-		self.tab_e_v = [[i + 1, *a] for i, a in enumerate(getattr(self.state, "tab_e")) if is_str_float(a[self.e_source-1].replace(",","."))]
-		self.tab_e_v = [[float(b.replace(",",".")) if i == self.e_source else b for i, b in enumerate(a)] for a in self.tab_e_v]
-		self.data_atr = [a for a, b in zip(["tab_a_v", "tab_b_v", "tab_c_v", "tab_d_v", "tab_e_v"], tick) if b == 1 and getattr(self,a)]
-		opt_dict  = {"tab_a_v":"opt_a","tab_b_v":"opt_b","tab_c_v":"opt_c","tab_d_v":"opt_d","tab_e_v":"opt_e"}
-		self.opt_atr = [opt_dict[a] for a in self.data_atr]
 		self.title = title
+		self.span_request = True if span["span"] == 1 else False
+		self.comma = True if main["comma"] == 1 else False
+		self.include_np = True if main["include"] == 1 else False
+		if self.span_request:
+			self.temperature = self._verify_temp(span["temperature"])
+		################################################################################################################
+		self.state = state
+		self.tab_v = ["tab_{}_v".format(a.lower()) for a in pref.menu_e]
+		for a,b in zip(self.tab_v,pref.menu_g):
+			d = [[i + 1, *c] for i, c in enumerate(getattr(self.state,b)) if is_str_float(c[self.e_source-1].replace(",","."))]
+			d = [[float(c.replace(",", ".")) if i == self.e_source else c for i, c in enumerate(e)] for e in d]
+			setattr(self,a,d)
+		self.data_atr = [a for a, b in zip(self.tab_v, self.include) if b == 1 and getattr(self,a)]
+		self.opt_atr = [{a:b for a,b in zip(self.tab_v,pref.menu_f)}[a] for a in self.data_atr]
 		self.paths = []
 		self.svg_code = ['<?xml version="1.0" encoding="UTF-8" ?>']
-		self.span_worthy = True
-		self.span_request = True if tick_options["span"] == 1 else False
-		self.comma = True if tick_options["comma"] == 1 else False
-		self.include = True if tick_options["include"] == 1 else False
-		self.msg = []
-		self.temperature = 275
+
+
+	def _verify_temp(self,value):
+		if is_str_float(value.replace(",",".")):
+			if float(value) <= -273.15:
+				self.span_worthy = False
+				self.msg.append("Temperature should not be smaller than or equal to -273{}15 °C\n".format("," if self.comma else "."))
+				return None
+			else:
+				t = float(value) + 273.15
+				self.msg.append("Temperature is set to {} K\n".format(self.commafy("{:.2f}".format(t))))
+				return t
+		else:
+			self.span_worthy = False
+			self.msg.append("Unrecognized temperature: {}\n".format("value"))
 	def commafy(self,item):
 		return str(item).replace(".", ",") if self.comma else str(item).replace(",", ".")
 	@functools.lru_cache(maxsize=1)
@@ -130,9 +521,9 @@ class SvgGenEsp:
 			'    <text x="{}" y="495" font-size="22" text-anchor="middle" fill="black">{}</text>']
 		a[0] = a[0].format((self.n_col() + 1) * 80 + 100)
 		a[2] = a[2].format((self.n_col() + 1) * 80 + 75)
-		a[3] = a[3].format(int(self.n_col() * 40 + 80), self.title[0].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
-		a[4] = a[4].format('transform="rotate(-90)"', self.title[1].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
-		a[5] = a[5].format(int(self.n_col() * 40 + 80), self.title[2].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+		a[3] = a[3].format(int(self.n_col() * 40 + 80), self.title["main"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+		a[4] = a[4].format('transform="rotate(-90)"', self.title["y"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+		a[5] = a[5].format(int(self.n_col() * 40 + 80), self.title["x"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 		self.svg_code.extend(a)
 
 	@functools.lru_cache(maxsize=1)
@@ -173,32 +564,32 @@ class SvgGenEsp:
 					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>',
 					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>',
 					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>']
-				x = svg_repl[opt_cri[-1]]
-				z = placement[item[-2]][0 if self.include else 1]
-				trick_g = 0 if self.e_source == 3 else 1
-				trick_h = 1 if self.e_source == 3 else 0
-				digit_rounding = "{:.2f}".format(item[self.e_source]) if self.aesthetics[-1] == "2" else "{:.1f}".format(item[self.e_source])
-				g = self.g_h_sep[trick_g][0] + self.commafy(digit_rounding) + self.g_h_sep[trick_g][-1]
-				h = self.g_h_sep[trick_h][0] + self.commafy(item[self.e_complement]) + self.g_h_sep[trick_h][-1]
+				x = pref.svg_repl[opt_cri[-1]]
+				z = pref.placement[item[-2]][0 if self.include_np else 1]
+				trick_g = "g" if self.e_source == 3 else "h"
+				trick_h = "h" if self.e_source == 3 else "g"
+				digit_rounding = "{:.2f}".format(item[self.e_source]) if self.aesthetics["decimal"] == "2" else "{:.1f}".format(item[self.e_source])
+				g = self.aesthetics[trick_g][0] + self.commafy(digit_rounding) + self.aesthetics[trick_g][-1]
+				h = self.aesthetics[trick_h][0] + self.commafy(item[self.e_complement]) + self.aesthetics[trick_h][-1]
 				a[0] = a[0].format(c_p[0], c_p[1], c_p[2], c_p[1], opt_cri[0],opt_cri[1],x)
 				a[1] = a[1].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[0], opt_cri[0],item[2].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 				a[2] = a[2].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[1],opt_cri[0],str(g).encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 				a[3] = a[3].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[2],opt_cri[0],str(h).encode("ascii", "xmlcharrefreplace").decode("utf-8"))
-				self.svg_code.extend(a if self.include else a[:-1])
+				self.svg_code.extend(a if self.include_np else a[:-1])
 				if not idx == 0:
 					b = '    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>'
-					x = svg_repl[opt_con[-1]]
+					x = pref.svg_repl[opt_con[-1]]
 					b = b.format(l_c[2], l_c[1], c_p[0], c_p[1], opt_con[0],opt_con[1],x)
 					self.svg_code.append(b)
 				l_c = c_p
 
 	@functools.lru_cache(maxsize=1)
 	def graph_connectors(self):
-		if not self.tick[-1] == 1: return
+		if not self.include[-1] == 1: return
 		for i in getattr(self.state,"con"):
 			if any(i[n] == "" for n in [0,1,2,3]):continue
 			i = [int(a) if idx in [1, 3] else a for idx, a in enumerate(i)]
-			data_dict = {a:b for a, b in zip(["tab_a_v", "tab_b_v", "tab_c_v", "tab_d_v", "tab_e_v"],menu_e)}
+			data_dict = {a:b for a, b in zip(self.tab_v,pref.menu_e)}
 			dict_a = {a:b for a,b in zip([data_dict[a] for a in self.data_atr],self.paths)}
 			if not i[0] in dict_a.keys(): continue
 			if not i[2] in dict_a.keys(): continue
@@ -213,31 +604,62 @@ class SvgGenEsp:
 			if con[0][0] > con[1][0]:
 				con.reverse()
 			if con[0][0] < con[1][0]:
-				x = svg_repl[i[6]]
+				x = pref.svg_repl[i[6]]
 				a = '    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>'
 				a = a.format(int((con[0][0] + 1) * 80 + self.wide[1]), con[0][-1] + 50,
 							 int((con[1][0] + 1) * 80 + self.wide[0]), con[1][-1] + 50,
 							 i[4],i[5],x)
 				self.svg_code.append(a)
+
 	@functools.lru_cache(maxsize=1)
 	def span_dg(self):
-		r_const = {"kcal/mol": 0.0019872, "kJ/mol": 0.0083144}[self.span_opt[0]]
-		boltz_const = {"kcal/mol":3.29762e-27,"kJ/mol":1.380649e-26}[self.span_opt[0]]
-		planck_const = {"kcal/mol":1.58367e-37,"kJ/mol":6.6260755e-37}[self.span_opt[0]]
+		r_const = {"kcal/mol": 0.0019872, "kJ/mol": 0.0083144}[self.span["units"]]
+		boltz_const = {"kcal/mol":3.29762e-27,"kJ/mol":1.380649e-26}[self.span["units"]]
+		planck_const = {"kcal/mol":1.58367e-37,"kJ/mol":6.6260755e-37}[self.span["units"]]
 		delta_e = self.paths[0][-1][self.e_source]-self.paths[0][0][self.e_source]
-		limit = {"kcal/mol": 4, "kJ/mol": 16.736}[self.span_opt[0]]
+		limit = {"kcal/mol": 4, "kJ/mol": 16.736}[self.span["units"]]
 		if not self.span_worthy: return
-		if not len(self.paths[0]) > 1: self.span_worthy = False; return
+		if not len(self.paths[0]) > 1:
+			self.msg.append("This software can only do span analysis if only one path is ploted\n")
+			self.span_worthy = False; return
 		if not len(self.set_height()) == 1: self.span_worthy = False; return
+		z = "Analysis assumes structures #{} and #{} have the same geometry,"
+		z += " but are energeticaly distiguished by the {} of the reaction.\n"
+		self.msg.append(z.format(min(a[0] for a in self.paths[0]),
+								 max(a[0] for a in self.paths[0]),
+								 "exergonicity" if self.e_source == 3 else "exotermicity"))
+
+		if self.e_source != 3:
+			m = "WARNING: Data above should only be used after carefull consideration."
+			m += "Enthalpy values were employed in place of Gibbs Free energy\n"
+			self.msg.append(m)
+		# Is it a TS or INT?
+		if self.span["irrespective"] != 1:
+			if not self.paths[0][0][1] == self.paths[0][-1][1]:
+				self.msg.append("#{} and #{} must be the same TS/INT type\n".format(self.paths[0][0][0],self.paths[0][-1][0]))
+			for i,a in enumerate(self.paths[0]):
+				if i == 0 or i+1 == len(self.paths[0]):
+					top = self.paths[0][1][self.e_source] < self.paths[0][0][self.e_source] and self.paths[0][-1][self.e_source] > self.paths[0][-2][self.e_source]
+				else:
+					top = self.paths[0][i-1][self.e_source] < a[self.e_source] > self.paths[0][i+1][self.e_source]
+				if top and a[1] == "TS": pass
+				elif top and a[1] == "INT": self.msg.append("Are you sure #{} is not a TS? It is directly connected to structures lower in both forward and backwards direction!\n".format(a[0]))
+				elif not top and a[1] == "TS": self.msg.append("Are you sure #{} is not an INT? It is directly connected to structure(s) higher in energy!\n".format(a[0]))
+				if a[1] not in ["TS","INT"]: self.msg.append("#{} should be set as either TS or INT, otherwise it will be ploted but excluded from analysis\n".format(a[0]))
 		#TOF
 		all_it = []
 		for idx_a, a in enumerate(self.paths[0][:-1]):
 			for idx_b,b in enumerate(self.paths[0][:-1]):
-				all_it.append([a, a[self.e_source] - b[self.e_source] - delta_e if idx_b < idx_a else  a[self.e_source] - b[self.e_source] , b])
+				all_it.append([a, a[self.e_source] - b[self.e_source] - delta_e if idx_b < idx_a else a[self.e_source] - b[self.e_source] , b])
 
-		all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS", a[2][1] == "INT"])]
-
-		#for a in all_it: print(a)
+		if self.span["irrespective"] != 1:
+			all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS", a[2][1] == "INT"])]
+		if self.span["irrespective"] == 1:
+			m = "WARNING: Data above should only be used after carefull consideration."
+			m += "Equations were applied on the assumption that all structures are both intermediates and transition states simultaneously\n"
+			self.msg.append(m)
+		if all([self.span["irrespective"] != 1, all_it, self.e_source == 3]):
+			self.msg.append("Ref.: Kozuch, S., Shaik, S. Acc. Chem. Res. 2011, 44, 101.\n")
 		if all_it:
 			denominator = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it)
 			tof = (((math.exp(-delta_e / (r_const * self.temperature)) - 1) / denominator) * self.temperature * boltz_const) / planck_const
@@ -256,6 +678,8 @@ class SvgGenEsp:
 			self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_ts))
 			self.msg.append("X(tof) for transition states:")
 			self.msg.append("TOF as catalytic flux law: {:5e} per hour\n".format(tof * 3600))
+			if abs(tof) > 1e8:
+				self.msg.append("ALERT: Please consider the possibility of diffusion control rates\n")
 		#CONDITIONALS FOR SPAN
 		if delta_e >= 0:
 			self.msg.append("Reaction is {}! Span will not be computed!\n".format("endergonic" if self.e_source == 3 else "endotermic"))
@@ -271,7 +695,8 @@ class SvgGenEsp:
 		for idx_a, a in enumerate(self.paths[0][:-1]):
 			for idx_b,b in enumerate(self.paths[0][:-1]):
 				all_it.append([a, a[self.e_source] - b[self.e_source] + delta_e if idx_a <idx_b else a[self.e_source] - b[self.e_source], b])
-		all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS",a[2][1] == "INT"])]
+		if self.span["irrespective"] != 1:
+			all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS",a[2][1] == "INT"])]
 		#for a in all_it: print(a)
 		if not all_it:
 			self.span_worthy = False
@@ -284,7 +709,7 @@ class SvgGenEsp:
 			return
 		for i,a in enumerate(all_it):
 			if 0 <= a[1] > span[1] - limit and any(span[n][0] != a[n][0] for n in [0,2]):
-				message = "WARNING: span from #{} to #{} is only {:.2f} {} lower".format(a[0][0],a[2][0],span[1]-a[1],self.span_opt[0])
+				message = "WARNING: Span from #{} to #{} is only {:.2f} {} lower".format(a[0][0],a[2][0],span[1]-a[1],self.span["units"])
 				message += " than #{} to #{} and may influence the rate determining state\n".format(span[0][0],span[2][0])
 				self.msg.append(message)
 		tof_span = (((math.exp(-span[1]/(r_const*self.temperature))))*self.temperature*boltz_const)/planck_const
@@ -293,8 +718,8 @@ class SvgGenEsp:
 
 	@functools.lru_cache(maxsize=1)
 	def graph_span(self):
-		tdi_correct = {a: b for a,b in zip(menu_d, [-35,-2,10] if self.include else [-20,-2,10])}
-		tdts_correct = {a: b for a, b in zip(menu_d, [-15, 18, 32] if self.include else [-15,2,16])}
+		tdi_correct = {a: b for a,b in zip(pref.menu_d, [-35,-2,10] if self.include_np else [-20,-2,10])}
+		tdts_correct = {a: b for a, b in zip(pref.menu_d, [-15, 18, 32] if self.include_np else [-15,2,16])}
 		if self.span_dg() is None: self.span_worthy = False; return
 		if self.span_worthy:
 			data = [[self.span_dg()[0][n] for n in [0,-1]],[self.span_dg()[2][n] for n in [0,-1]]]
@@ -327,11 +752,6 @@ class SvgGenEsp:
 				'    <text x="120" y="470" text-anchor="left" fill="black">Span = {}</text>']
 			a[0] = a[0].format(self.commafy("{:.2f}".format(delta_e)))
 			a[1] = a[1].format(self.commafy("{:.2f}".format(span)))
-			z = "Span analysis assumes structure #{} and #{} have the same geometry,"
-			z += " but are energeticaly distiguished by the {} of the reaction.\n"
-			self.msg.append(z.format(min(a[0] for a in self.paths[0]),
-									 max(a[0] for a in self.paths[0]),
-									 "exergonicity" if self.e_source == 3 else "exotermicity"))
 			self.svg_code.extend(a)
 
 	@functools.lru_cache(maxsize=1)
@@ -361,421 +781,40 @@ class SvgGenEsp:
 		except FileNotFoundError:
 			pass
 
-
-#class MasterFrame(tk.Frame):
-#	def __init__(self,master,column,row,columnspan=1,rowspan=1,*args,**kwargs):
-#		tk.Frame.__init__(self,master,*args, **kwargs)
-#		self.master = master
-#		self.grid(column=column, row=row,columnspan=columnspan,rowspan=rowspan,sticky="news")
-#		self.grid_columnconfigure(0, weight=1)
-#		#self.grid_rowconfigure(0, weight=1)
-class Note(ttk.Notebook):
-	def __init__(self,parent,*args,**kwargs):
-		ttk.Notebook.__init__(self,parent,*args,**kwargs)
-		self.parent = parent
-		self.tab_a = TabFrame(self, name="Path A")
-		self.tab_b = TabFrame(self, name="Path B")
-		self.tab_c = TabFrame(self, name="Path C")
-		self.tab_d = TabFrame(self, name="Path D")
-		self.tab_e = TabFrame(self, name="Path E")
-		self.tab_connections = TabFrameConnections(self,name="Connections")
-		self.grid(column=0,row=0,sticky='news')
-		self.grid_columnconfigure(0, weight=1)
-class TabFrame(ttk.Frame):
-	def __init__(self,parent,name,*args,**kwargs):
-		ttk.Frame.__init__(self,parent,*args,**kwargs,height=50)
-		self.parent = parent
-		self.parent.add(self, text=name)
-		#########
-		self.option_menu = TabFrameOption(self)
-		self.option_menu.grid(column=0,row=0,columnspan = 8,rowspan=8,sticky="news")
-		for n in range(3):
-			self.grid_columnconfigure(n+2, weight=[2,1,1][n])
-		#########
-		for a,b in zip([1,2,3,4,5,7],["Type",'Structure Name','Free Energy','Entalphy',"Move",'Alignment']):
-			label = tk.Label(self, text=b)
-			if a == 5: label.grid(column=a, row=9, rowspan=1, columnspan = 2,sticky="news")
-			else: label.grid(column=a, row=9, rowspan=1,sticky="news")
-		#########
-		self.data = [[None,None,None,None,None] for _ in range(n_structures)]
-		#########
-		for n in range(n_structures):
-			label = tk.Label(self, text='#{}'.format(n+1))
-			label.grid(column=0, row=10+n, rowspan=1)
-			for b in [1,2,3]:
-				self.data[n][b] = tk.Entry(self,justify=tk.CENTER,bd=2,width=10 if b in [2,3] else 15)
-				self.data[n][b].insert(0,"")
-				self.data[n][b].grid(column=1+b, row=10+n,padx="0",sticky="news")
-			if not n == 0:
-				button = tk.Button(self, text=u'\u2191', command=lambda x = n: self._move(x,x-1), padx="1")
-				button.config(width=1)
-				button.grid(column=5, row=10 + n)
-			if not n+1 == n_structures:
-				button = tk.Button(self, text=u'\u2193', command=lambda x = n: self._move(x,x+1), padx="1")
-				button.config(width=1)
-				button.grid(column=6, row=10 + n)
-			self.data[n][0] = tk.StringVar()
-			menu = tk.OptionMenu(self,self.data[n][0],*menu_f)
-			self.data[n][0].set(menu_f[0])
-			menu.config(width="3")
-			menu.grid(column=1, row=10 + n)
-			self.data[n][4] = tk.StringVar()
-			menu = tk.OptionMenu(self,self.data[n][4],*menu_d)
-			self.data[n][4].set(menu_d[1])
-			menu.config(width="6")
-			menu.grid(column=7, row=10 + n)
-	def _move(self,n,x):
-		line_n = [a.get() for a in self.data[n]]
-		other = [a.get() for a in self.data[x]]
-		for i, a in enumerate(other):
-			if type(self.data[n][i]) is tk.Entry:
-				self.data[n][i].delete(0,tk.END)
-				self.data[n][i].insert(0,a)
-			elif type(self.data[n][i]) is tk.StringVar:
-				self.data[n][i].set(a)
-		for i, a in enumerate(line_n):
-			if type(self.data[x][i]) is tk.Entry:
-				self.data[x][i].delete(0,tk.END)
-				self.data[x][i].insert(0,a)
-			elif type(self.data[x][i]) is tk.StringVar:
-				self.data[x][i].set(a)
-
-class TabFrameOption(tk.Frame):
-	def __init__(self,parent,*args,**kwargs):
-		ttk.Frame.__init__(self,parent,*args,**kwargs)
-		self.parent = parent
-		#self.grid(column=8, row=0,  columnspan=1, pady="0",padx="0", rowspan=1,sticky="news")
-		self.line_opt_data = [[None,None,None],[None,None,None]]
-		self.grid_columnconfigure(0, weight=1)
-		self.grid_columnconfigure(1, weight=1)
-		for n,name in enumerate(["Main[Color/Width/Strike]","Link[Color/Width/Strike]"]):
-			box = self.boxify(name=name,column=n)
-			for a in range(3):box.grid_columnconfigure(a, weight=1)
-			for a,b in zip([0,1,2],[menu_a,menu_b,menu_c]):
-				self.line_opt_data[n][a] = tk.StringVar()
-				self.color_menu = tk.OptionMenu(box, self.line_opt_data[n][a],*b)
-				self.line_opt_data[n][a].set(b[[1,1,0][a] if n == 0 else [1,0,2][a]])
-				self.color_menu.config(width=["9","1","7"][a])
-				self.color_menu.grid(column=a,row=0,sticky="news")
-
-	def boxify(self, name, column):
-		box = ttk.LabelFrame(self, text=name)
-		box.grid(column=column, row=0, sticky="news")
-		return box
-class TabFrameConnections(ttk.Frame):
-	def __init__(self,parent,name,*args,**kwargs):
-		ttk.Frame.__init__(self,parent,*args,**kwargs)
-		self.parent = parent
-		self.parent.add(self, text=name)
-		#self.grid_columnconfigure(0, weight=1)
-		#self.grid_rowconfigure(0, weight=1)
-		#########
-		#for a,b in zip([1,2,3,4],["Path","Structure","Path","Structure"]):
-		#	label = tk.Label(self, text=b)
-		#	label.grid(column=1, row=9, rowspan=1,sticky="news")
-		#########
-		self.data = [[None,None,None,None,None,None,None] for _ in range(8)]
-		#########
-		for n in range(8):
-			con = tk.LabelFrame(self,text="Conector {}".format(n+1))
-			con.grid(column=0, row=n*2,  columnspan=5, pady="0",padx="2", rowspan=2,sticky="news")
-			for b in range(2):
-				label = tk.Label(con, text="From path" if b ==0 else "to path")
-				label.grid(column=b*4+0, row=0, sticky="w")
-				self.data[n][b*2] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2],*menu_e)
-				menu.config(width="2")
-				menu.grid(column=b*4+1, row=0,sticky = "e")
-				label = tk.Label(con, text=", number" if b ==0 else ", number")
-				label.grid(column=b * 4 + 2, row=0, sticky="w")
-				self.data[n][b*2+1] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2+1],*[a+1 for a in range(n_structures)])
-				menu.config(width="2")
-				menu.grid(column=b*4+3, row=0,sticky = "e")
-			label = tk.Label(con,text="Color/Width/Strike:")
-			label.grid(column=0,row=1,columnspan=2)
-			for a, b in zip([0, 1, 2], [menu_a, menu_b, menu_c]):
-				self.data[n][a+4] = tk.StringVar()
-				self.color_menu = tk.OptionMenu(con, self.data[n][a+4], *b)
-				self.data[n][a+4].set(b[0])
-				self.color_menu.config(width="12")
-				self.color_menu.grid(column=2 + a*2,columnspan =2, row=1)
-class GeneralMenu(tk.LabelFrame):
-	def __init__(self,parent,name,*args,**kwargs):
-		ttk.LabelFrame.__init__(self,parent,text=name,*args,**kwargs)
-		self.parent = parent
-		self.grid(column=0, row=0,  columnspan=1, pady="0",padx="0", rowspan=1,sticky="news")
-		self.tick_boxes_a =[None for _ in range(6)]
-		self.tick_boxes_b = [None,None,None,None]
-		self.tick_boxes_c = [None,None]
-		self.titles = ["Main title", "Energy level", "Reaction cordinate"]
-		self.command = ""
-		self.aesthetics = [None,None,None,None]
-		###BUILD
-		self._build_path_sel(2)
-		self._build_other_opt(3)
-		self._build_span_opt(4)
-		self._build_aesthetics(5)
-		self._build_titles(6)
-		self._build_loadsave(7)
-		if trickster: self._build_generator(8)
-		self._build_preview(9)
-		self._build_message(10)
-	def _build_path_sel(self,idx):
-		box = self.boxify("Paths and connections",idx)
-		for i,a in enumerate([*["Path "+ x for x in "ABCDE"],"Connections"]):
-			self.tick_boxes_a[i] = tk.IntVar(value=1)
-			c1 = tk.Checkbutton(box, text=a, variable=self.tick_boxes_a[i], onvalue=1, offvalue=0)
-			c1.grid(column=i,row=0)
-	def _build_other_opt(self,idx):
-		box = self.boxify("Others", idx)
-		options = ["Atempt span","Use enthalpy instead of free energy","Use comma as decimal","Include non ploted (H or G values)"]
-		for i,a in enumerate(options):
-			self.tick_boxes_b[i] = tk.IntVar(value=(1 if i == 0 else 0))
-			c1 = tk.Checkbutton(box, text=a, variable=self.tick_boxes_b[i], onvalue=1, offvalue=0)
-			c1.grid(column=i%2,row=i//2,sticky="w")
-	def _build_span_opt(self,idx):
-		box = self.boxify("Span options", idx)
-		box.grid_columnconfigure(1, weight=1)
-		label = tk.Label(box, text="Input units:")
-		label.grid(column=0, row=0,sticky="w")
-		self.tick_boxes_c[0] = tk.StringVar()
-		options = ["kcal/mol","kJ/mol"]
-		menu = tk.OptionMenu(box, self.tick_boxes_c[0], *options)
-		menu.config(width="8")
-		menu.grid(column=1, row=0,sticky="w")
-		self.tick_boxes_c[0].set(options[0])
-		self.tick_boxes_c[1] = tk.IntVar(value=1)
-		c1 = tk.Checkbutton(box, text="irrespective of type (TS/INT)", variable=self.tick_boxes_c[1], onvalue=1, offvalue=0)
-		c1.grid(column=2,row=0,sticky="e")
-	def _build_aesthetics(self,idx):
-		box = self.boxify("Aesthetics",idx)
-		x = [["   ", "( )", "[ ]", r"{ }", '" "', "' '"], ["   ", "( )", "[ ]", r"{ }", '" "', "' '"],[a * 2 for a in range(11)],[1,2]]
-		for a,b,c in zip([0,1,2,3],["G:","H:","Width:","Decimal"],x):
-			label = tk.Label(box,text=b)
-			label.grid(column=2*a,row=0)
-			self.aesthetics[a] = tk.StringVar()
-			menu = tk.OptionMenu(box, self.aesthetics[a], *c)
-			menu.config(width="4")
-			menu.grid(column=a * 2 + 1, row=0)
-		for i,a in enumerate(["   ","( )",10,1]):
-			self.aesthetics[i].set(a)
-	def _build_titles(self,idx):
-		box = self.boxify("Titles",idx)
-		for a,b,c in zip([0,1,2],self.titles,["Main:","y:","x:"]):
-			label = tk.Label(box, text=c,width=10)
-			label.grid(column=0, row=a)
-			self.titles[a] = tk.Entry(box, justify=tk.CENTER, bd=2, width=50)
-			self.titles[a].insert(0, b)
-			self.titles[a].grid(column=1, row=a, padx="0", sticky="news")
-	def _build_loadsave(self,idx):
-		box = self.boxify("Load & Save States", idx)
-		label = tk.Label(box, text="A state contanis path's and connection's info)")
-		label.grid(column=0,row=0,sticky="w")
-		button = tk.Button(box, text="Load", command=self.load_state, padx="1")
-		button.config(width=7)
-		button.grid(column=1,row=0,sticky="e")
-		button = tk.Button(box, text="Save as", command=self._save_as, padx="1")
-		button.config(width=7)
-		button.grid(column=2,row=0,sticky="e")
-		button = tk.Button(box, text="Save", command=self._save, padx="1")
-		button.config(width=7)
-		button.grid(column=3,row=0,sticky="e")
-		box.grid_columnconfigure(0, weight=1)
-	def _build_generator(self,idx):
-		box = self.boxify("Generate random catalytic cycle (Trickster)", idx)
-		label = tk.Label(box, text="Random catalytic cycle generator")
-		label.pack(side=tk.LEFT)
-		button = tk.Button(box, text="Fill in data", command=self._ask_confirmation, padx="1")
-		button.config(width=10)
-		button.pack(side=tk.RIGHT)
-	def _build_preview(self,idx):
-		###########
-		box = self.boxify("Preview with either command or default manager, or save svg file", idx)
-		self.command = tk.Entry(box, justify=tk.CENTER, bd=4)
-		self.command.insert(0, command_line)
-		self.command.grid(column=0,row=0,sticky="news")
-		button = tk.Button(box, text="Command", command=self.run_data_a, padx="1")
-		button.config(width=8)
-		button.grid(column=1,row=0,sticky="e")
-		button = tk.Button(box, text="Default", command=self.run_data_b, padx="1")
-		button.config(width=8)
-		button.grid(column=2,row=0,sticky="e")
-		button = tk.Button(box, text="Save svg", command=self.return_svg, padx="1")
-		button.config(width=8)
-		button.grid(column=3,row=0,sticky="e")
-		box.grid_columnconfigure(0, weight=1)
-
-	def _build_message(self,idx):
-		box = self.boxify("Message",idx)
-		m = tk.Message(box)
-		scrollbar = tk.Scrollbar(box)
-		scrollbar.grid(column=1,row=0,sticky="nes")
-		self.msg = tk.Text(box,width=40,yscrollcommand=scrollbar.set,height=12 if trickster else 18,state="disabled",background=m.cget("background"),relief="flat",wrap=tk.WORD,font=("Helvetica", 8))
-		m.destroy()
-		self.msg.grid(column=0,row=0,sticky="news")
-		self.message("Welcome!")
-		box.grid_rowconfigure(0, weight=1)
-		box.grid_rowconfigure(0, weight=1)
-		box.grid_columnconfigure(0, weight=1)
-		box.grid_columnconfigure(0, weight=1)
-		#box.grid_propagate(False)
-		self.grid_rowconfigure(idx, weight=1)
-	def _save(self):
-		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
-		try:
-			with open(self.f,"w") as out: out.write(txt)
-		except AttributeError: self._save_as()
-	def _save_as(self):
-		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
-		self.f = tk.filedialog.asksaveasfilename(defaultextension=".ssf",title="Save state",filetypes = [("Saved State File", ".ssf")])
-		try:
-			with open(self.f,"w") as out: out.write(txt)
-		except FileNotFoundError: pass
-	def fill_in(self):
-		names = "ABCDEFGHIJKLMNOPQRST"
-		size = random.random()
-		lenght = random.randint(1,19)
-		for i,n in zip(range(19),names):
-			value = size*random.randrange(-100,100)
-			for idx in range(len(note.tab_a.data[i])):
-				if idx == 1:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i+1 < lenght: note.tab_a.data[i][idx].insert(0, n)
-					elif i + 1 == lenght: note.tab_a.data[i][idx].insert(0, "A'")
-				elif idx == 2:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value))
-				elif idx == 3:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value + random.choice([-random.random(), +random.random()])))
-				elif idx == 4:
-					note.tab_a.data[i][idx].set(random.choice(menu_d))
-		for i in range(19):
-			if i == 0: note.tab_a.data[i][0].set("INT")
-			elif i+1 == lenght: note.tab_a.data[i][0].set("INT")
-			elif i >= lenght: note.tab_a.data[i][0].set("  ")
-			else:
-				if float(note.tab_a.data[i-1][2].get()) < float(note.tab_a.data[i][2].get()) > float(note.tab_a.data[i+1][2].get()):
-					note.tab_a.data[i][0].set("TS")
-				else:
-					note.tab_a.data[i][0].set("INT")
-
-	def _ask_confirmation(self):
-		msgbox = tk.messagebox.askquestion('Fill in random catalytic cycle', 'Are you sure? All unsaved data on Path A will be lost!', icon='warning')
-		if msgbox == "yes":self.fill_in()
-
-	def message(self,text):
-		now = datetime.datetime.now()
-		self.msg.configure(state="normal")
-		self.msg.tag_add("start", "0.0", tk.END)
-		self.msg.tag_config("start", foreground="grey")
-		if type(text) == str: text = [text]
-		for txt in text:
-			self.msg.insert("1.0",txt+"\n")
-		self.msg.insert("1.0", "[" + ":".join(["{:02d}".format(a) for a in [now.hour, now.minute, now.second]]) + "] "+"\n")
-		self.msg.configure(state="disabled")
-	def boxify(self,name,row):
-		box = ttk.LabelFrame(self, text=name)
-		box.grid(column=0, row=row, sticky="news")
-		return box
-	def print_data(self):
-		notes = [note.tab_a, note.tab_b, note.tab_c, note.tab_e, note.tab_d, note.tab_e]
-		for a,b in zip(notes,menu_e):
-			print("NOTE {}".format(b))
-			for idx,line in enumerate(getattr(a,"data")):
-				if any(c.get().strip() != "" for c in line[:-1]):
-					print("#{}".format(idx+1),[n.get() for n in line])
-		print("NOTE CONNECTIONS")
-		for idx,a in enumerate(note.tab_connections.data):
-			if any(c.get().strip() != "" for c in a[:-3]):
-				print("#{}".format(idx + 1), [n.get() for n in a])
-	def gen_data(self):
-		notes = [note.tab_a, note.tab_b, note.tab_c, note.tab_d, note.tab_e]
-		raw_data = []
-		for a,b in zip(notes,menu_e):
-			for idx,line in enumerate(getattr(a,"data")):
-				c = [n.get() for n in line]
-				assert all("/|" not in d for d in c), self.message("'/|' is not allowed in names or energy values")
-				assert all("/$" not in d for d in c), self.message("'/$' is not allowed in names or energy values")
-				raw_data.append("/|".join(c))
-			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[0]]))
-			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[1]]))
-			raw_data.append("#{}".format(b))
-		for idx,a in enumerate(note.tab_connections.data):
-				raw_data.append("/|".join([n.get() for n in a]))
-		raw_data.append("#CON")
-		return raw_data
-	def load_state(self):
-		with tk.filedialog.askopenfile(mode="r",title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")]) as file:
-			state = "".join(file.read().splitlines()).split("/$")
-		state = State(state)
-		notes = [note.tab_a, note.tab_b, note.tab_c, note.tab_d, note.tab_e]
-		dat_states = [state.tab_a,state.tab_b,state.tab_c,state.tab_d,state.tab_e]
-		opt_states = [state.opt_a,state.opt_b,state.opt_c,state.opt_d,state.opt_e]
-		for a,b,c in zip(notes,dat_states,opt_states):
-			for n in range(3):
-				a.option_menu.line_opt_data[0][n].set(c[0][n])
-				a.option_menu.line_opt_data[1][n].set(c[1][n])
-			for i,line in enumerate(b):
-				for n in range(3):
-					a.data[i][n+1].delete(0,tk.END)
-					a.data[i][n+1].insert(0,line[n+1])
-				a.data[i][0].set(line[0])
-				a.data[i][4].set(line[4])
-		for i,line in enumerate(state.con):
-			for n in range(7):
-				note.tab_connections.data[i][n].set(line[n])
-	def save_svg_as(self):
-		return tk.filedialog.asksaveasfilename(defaultextension=".svg", title="Save svg", filetypes=[("Scalable Vector Graphics", ".svg")])
-	def return_svg(self,promp=True):
-		tick = [a.get() for a in self.tick_boxes_a]
-		state = State(self.gen_data())
-		title = [a.get() for a in self.titles]
-		tick_options = {a:b.get() for a,b in zip(["span","energy","comma","include"],self.tick_boxes_b)}
-		aesthetics = [a.get() for a in self.aesthetics]
-		svg_name = None if promp == False else self.save_svg_as()
-		span_opt = [a.get() for a in self.tick_boxes_c]
-		msg = SvgGenEsp(state=state,tick=tick,tick_options=tick_options,span_opt=span_opt,title=title,aesthetics=aesthetics).save_svg(svg_name)
-		if not msg is None:
-			self.message(msg)
-	def run_data_a(self):
-		self.return_svg(promp=False)
-		os.system(self.command.get())
-	def run_data_b(self):
-		self.return_svg(promp=False)
-		os.startfile(os.path.join(os.getcwd(), ".E_profile.svg"))
-
-window = tk.Tk()
-window.title("MechaSVG (BETA)")
-#NOTEBOOK
-frame1 = tk.Frame(master=window)
-frame1.grid(column=0,row=0,rowspan=2,sticky="news")
-frame1.grid_columnconfigure(0, weight=1)
-frame1.grid_rowconfigure(0, weight=1)
-note = Note(frame1)
-#GENERAL
-frame2 = tk.Frame(master=window)
-frame2.grid(column=1,row=0,rowspan=1,sticky="news")
-frame2.grid_columnconfigure(0, weight=1)
-frame2.grid_rowconfigure(0, weight=1)
-frame3 = tk.Frame(master=window)
-label = tk.Label(frame3, text="github.com/ricalmang")
-label.grid(column=0,row=0,stick="news")
-#frame3.grid_columnconfigure(0, weight=1)
-frame3.grid(column=1,row=1,rowspan=1)
-#frame1.grid_rowconfigure(0, weight=1)
-menu = GeneralMenu(frame2,name="Actions")
-window.grid_columnconfigure(0, weight=1)
-window.grid_rowconfigure(0, weight=1)
-w,h = 910, 685
-window.minsize(w,h)
-window.maxsize(2000,1200)
-ws = window.winfo_screenwidth() # width of the screen
-hs = window.winfo_screenheight() # height of the screen
-x = (ws/2) - (w/2)
-y = (hs/2) - (h/2)
-window.geometry('%dx%d+%d+%d' % (w, h, x, y))
-window.mainloop()
-
-
+def initialize():
+	global pref, note
+	pref = Preferences()
+	window = tk.Tk()
+	window.title("MechaSVG v 0.0.0")
+	#NOTEBOOK
+	frame1 = tk.Frame(master=window)
+	frame1.grid(column=0,row=0,rowspan=2,sticky="news")
+	frame1.grid_columnconfigure(0, weight=1)
+	frame1.grid_rowconfigure(0, weight=1)
+	note = Note(frame1)
+	#GENERAL
+	frame2 = tk.Frame(master=window)
+	frame2.grid(column=1,row=0,rowspan=1,sticky="news")
+	frame2.grid_columnconfigure(0, weight=1)
+	frame2.grid_rowconfigure(0, weight=1)
+	frame3 = tk.Frame(master=window)
+	label = tk.Label(frame3, text="github.com/ricalmang")
+	label.grid(column=0,row=0,stick="news")
+	frame3.grid(column=1,row=1,rowspan=1)
+	menu = GeneralMenu(frame2,name="Actions")
+	menu.grid(column=0, row=0,  columnspan=1, pady="0",padx="0", rowspan=1,sticky="news")
+	window.grid_columnconfigure(0, weight=1)
+	window.grid_rowconfigure(0, weight=1)
+	w,h = 910, 685
+	window.minsize(w,h)
+	window.maxsize(2000,1200)
+	ws = window.winfo_screenwidth() # width of the screen
+	hs = window.winfo_screenheight() # height of the screen
+	x = (ws/2) - (w/2)
+	y = (hs/2) - (h/2)
+	window.geometry('%dx%d+%d+%d' % (w, h, x, y))
+	window.mainloop()
+def is_str_float(i):
+	try: float(i); return True
+	except ValueError: return False
+initialize()
