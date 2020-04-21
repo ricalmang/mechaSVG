@@ -24,7 +24,7 @@ class Preferences:
 		# TDI and TDTS placement corrections
 		self.placement = {"Top"    :[[-37,-22,-7],[-22,-7,0]],
 					 "Midle"  :[[-5,15,30],[-5,15,30]],
-					 "Bottom" :[[15,30,45],[15,30,0]]}
+					 "Bottom" :[[17,32,47],[17,32,0]]}
 		self.menu_d = list(self.placement.keys())
 		self.menu_e = [a for a in "ABCDE"] #Will change the number of Paths available
 		self.menu_f = ["opt_{}".format(a.lower()) for a in self.menu_e]
@@ -234,15 +234,32 @@ class GeneralMenu(tk.LabelFrame):
 		c = [1,2]
 		e = [a,a,b,c]
 		f = ["G:","H:","Width:","Decimal"]
+
+
 		for a,(b,c) in enumerate(zip(f,e)):
 			label = tk.Label(box,text=b)
 			label.grid(column=2*a,row=0)
 			self.aesthetics.append(tk.StringVar())
 			menu = tk.OptionMenu(box, self.aesthetics[a], *c)
-			menu.config(width="4")
+			menu.config(width="2")
 			menu.grid(column=a * 2 + 1, row=0)
 		for i,a in enumerate(["   ","( )",10,1]):
 			self.aesthetics[i].set(a)
+
+		a = [0 + a * 10 for a in range(11)]
+		b = [60 + a * 5 for a in range(11)]
+		c = [" ","‡ (big)","‡ (small)"]
+		d = ["X offset:","X dist:","TS mark:"]
+		e = [a,b,c]
+		for a, (b, c) in enumerate(zip(d, e)):
+			label = tk.Label(box, text=b)
+			label.grid(column=0 if a ==0 else 2 * a +1, row=1, columnspan = 2 if a ==0 else 1)
+			self.aesthetics.append(tk.StringVar())
+			menu = tk.OptionMenu(box, self.aesthetics[a+4], *c)
+			menu.config(width="8" if a == 2 else "2")
+			menu.grid(column=a * 2 + 2, row=1, columnspan = 3 if a == 2 else 1, sticky="news" if a==2 else "")
+		for i, a in enumerate([40, 80, " "]):
+			self.aesthetics[i+4].set(a)
 	def _build_titles(self,idx):
 		box = self.boxify("Titles",idx)
 		for a,b,c in zip([0,1,2],self.titles,["Main:","y:","x:"]):
@@ -252,18 +269,21 @@ class GeneralMenu(tk.LabelFrame):
 			self.titles[a].insert(0, b)
 			self.titles[a].grid(column=1, row=a, padx="0", sticky="news")
 	def _build_loadsave(self,idx):
-		box = self.boxify("Load & Save States", idx)
-		label = tk.Label(box, text="A state contanis path's and connection's info)")
+		box = self.boxify("Close, Load & Save States", idx)
+		label = tk.Label(box, text="Path's and connection's info")
 		label.grid(column=0,row=0,sticky="w")
+		button = tk.Button(box, text="Close", command=self._blank_state, padx="1")
+		button.config(width=7)
+		button.grid(column=1, row=0, sticky="e")
 		button = tk.Button(box, text="Load", command=self.load_state, padx="1")
 		button.config(width=7)
-		button.grid(column=1,row=0,sticky="e")
+		button.grid(column=2,row=0,sticky="e")
 		button = tk.Button(box, text="Save as", command=self._save_as, padx="1")
 		button.config(width=7)
-		button.grid(column=2,row=0,sticky="e")
+		button.grid(column=3,row=0,sticky="e")
 		button = tk.Button(box, text="Save", command=self._save, padx="1")
 		button.config(width=7)
-		button.grid(column=3,row=0,sticky="e")
+		button.grid(column=4,row=0,sticky="e")
 		box.grid_columnconfigure(0, weight=1)
 	def _build_generator(self,idx):
 		box = self.boxify("Generate random catalytic cycle (Trickster)", idx)
@@ -310,6 +330,7 @@ class GeneralMenu(tk.LabelFrame):
 	def _save_as(self):
 		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
 		self.f = tk.filedialog.asksaveasfilename(defaultextension=".ssf",title="Save state",filetypes = [("Saved State File", ".ssf")])
+		self._change_win_title(self.f)
 		try:
 			with open(self.f,"w") as out: out.write(txt)
 		except FileNotFoundError: pass
@@ -350,9 +371,33 @@ class GeneralMenu(tk.LabelFrame):
 		note.tab_a.data[max_v[0]][4].set(pref.menu_d[2])
 		note.tab_a.data[min_v[0]][4].set(pref.menu_d[0])
 	def _ask_confirmation(self):
-		msgbox = tk.messagebox.askquestion('Fill in random catalytic cycle', 'Are you sure? All unsaved data on Path A will be lost!', icon='warning')
-		if msgbox == "yes":self.fill_in()
-
+		msgbox = tk.messagebox.askquestion('Fill in random catalytic cycle', 'Are you sure? All unsaved data will be lost!', icon='warning')
+		if msgbox == "yes":
+			self.fill_in()
+			self._change_win_title("Unsaved")
+			if hasattr(self,"f"): del(self.f)
+	def _change_win_title(self,path):
+		window.title("MechaSVG v 0.0.0 @ {}".format(path))
+	def _blank_state(self):
+		msgbox = tk.messagebox.askquestion('Close document', 'Are you sure? All unsaved data will be lost!', icon='warning')
+		if msgbox != "yes":return
+		self._change_win_title("Unsaved")
+		if hasattr(self,"f"): del(self.f)
+		for a in [getattr(note,a) for a in pref.menu_g]:
+			for i in range(pref.n_structures):
+				for idx in range(5):
+					if idx == 0: a.data[i][idx].set(pref.menu_z[0])
+					if idx in [1,2,3]: a.data[i][idx].delete(0, tk.END)
+					if idx  == 4: a.data[i][idx].set(pref.menu_d[1])
+		for a in [getattr(note,a) for a in pref.menu_g]:
+			for n in range(2):
+				for idx, b in zip([0, 1, 2], [pref.menu_a, pref.menu_b, pref.menu_c]):
+					a.option_menu.line_opt_data[n][idx].set(b[[1,1,0][idx] if n == 0 else [1,0,2][idx]])
+		for a in range(8):
+			for b in range(4):
+				note.tab_connections.data[a][b].set("")
+			for b,c in zip(range(3),[pref.menu_a, pref.menu_b, pref.menu_c]):
+				note.tab_connections.data[a][b+4].set(c[0])
 	def message(self,text):
 		now = datetime.datetime.now()
 		self.msg.configure(state="normal")
@@ -402,8 +447,16 @@ class GeneralMenu(tk.LabelFrame):
 		raw_data.append("#CON")
 		return raw_data
 	def load_state(self):
-		with tk.filedialog.askopenfile(mode="r",title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")]) as file:
-			state = "".join(file.read().splitlines()).split("/$")
+		file_n = tk.filedialog.askopenfilename(title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")])
+		if file_n == "": return
+		state = None
+		try:
+			with open(file_n,mode="r") as file:
+				state = "".join(file.read().splitlines()).split("/$")
+			self._change_win_title(file_n)
+			self.f = "file_n"
+		except FileNotFoundError:
+			return
 		state = State(state)
 		notes = [getattr(note,a) for a in pref.menu_g]
 		dat_states = [getattr(state,a) for a in pref.menu_g]
@@ -434,7 +487,7 @@ class GeneralMenu(tk.LabelFrame):
 			"include" : [a.get() for a in self.include], #ok
 			"title" : {a:b.get() for a,b in zip(["main","y","x"],self.titles)},#ok
 			"main" : {a: b.get() for a, b in zip(["energy", "comma", "include"], self.main)}, #ok
-			"aesthetics" : {a:b.get() for a,b in zip(["g","h","width","decimal"],self.aesthetics)},#ok
+			"aesthetics" : {a:b.get() for a,b in zip(["g","h","width","decimal","offset","distance","mark"],self.aesthetics)},#ok
 			"span" : {a:b.get() for a,b in zip(["span","irrespective","units","temperature"],self.span)}
 		}
 		msg = SvgGenEsp(**kwargs).save_svg(svg_name)
@@ -509,7 +562,7 @@ class SvgGenEsp:
 				path.append([*b,height])
 			self.paths.append(path)
 		return self.paths
-
+	#TODO
 	@functools.lru_cache(maxsize=1)
 	def graph_frame(self):
 		a = [
@@ -519,26 +572,26 @@ class SvgGenEsp:
 			'    <text x="{}" y="20" font-size="22" text-anchor="middle" fill="black">{}</text>',
 			'    <text x="-250" y="55" font-size="22" {} text-anchor="middle" fill="black">{}</text>',
 			'    <text x="{}" y="495" font-size="22" text-anchor="middle" fill="black">{}</text>']
-		a[0] = a[0].format((self.n_col() + 1) * 80 + 100)
-		a[2] = a[2].format((self.n_col() + 1) * 80 + 75)
-		a[3] = a[3].format(int(self.n_col() * 40 + 80), self.title["main"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+		a[0] = a[0].format(self.n_col() * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 100)
+		a[2] = a[2].format(self.n_col() * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 75)
+		a[3] = a[3].format(int(self.n_col() * 40 + int(self.aesthetics["distance"])), self.title["main"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 		a[4] = a[4].format('transform="rotate(-90)"', self.title["y"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
-		a[5] = a[5].format(int(self.n_col() * 40 + 80), self.title["x"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+		a[5] = a[5].format(int(self.n_col() * 40 + int(self.aesthetics["distance"])), self.title["x"].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 		self.svg_code.extend(a)
 
 	@functools.lru_cache(maxsize=1)
 	def graph_grid(self):
 		step_size = max(a if 10 * a < abs(self.delta_value()) else 0.05 for a in [0.1,0.2, 0.5, 1, 2, 5, 10, 25, 100])
-		max_e = round((math.ceil(self.max_value()) / 10)) * 10
+		max_e = round((math.ceil(self.max_value() + self.delta_value()) / 10)) * 10
 		steps = [max_e]
 		while True:
 			next_value = steps[-1] - step_size
-			if next_value < self.min_value(): break
+			if next_value < self.min_value() - self.delta_value(): break
 			steps.append(next_value)
 		for item in steps:
 			try: value = int(round(450 - 400 * ((item - self.min_value()) / (self.delta_value()))))
 			except ZeroDivisionError: value = 0;
-			if 24 < value < 476:
+			if 35 < value < 476:
 				b = [
 					'    <line x1="100" y1="{0}" x2="105" y2="{0}" stroke="black" stroke-width="2"/>',
 					'    <text x="80" y="{}" text-anchor="middle" fill="black">{}</text>']
@@ -556,12 +609,12 @@ class SvgGenEsp:
 				self.msg.append("WARNING: Two or more structures are occupying the same block lane!")
 			l_c = [0, 0, 0]  # last collumn
 			for idx, item in enumerate(i):
-				c_p = [int((item[0] + 1) * 80 + int(self.wide[0])), int(round(item[-1] + 50)),
-					   int((item[0] + 1) * 80 + self.wide[1])]
+				c_p = [int((item[0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + int(self.wide[0])), int(round(item[-1] + 50)),
+					   int((item[0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + self.wide[1])]
 				# [x1,y1,x2], y1=y2
 				a = [
 					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>',
-					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>',
+					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}{}</text>',
 					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>',
 					'    <text x="{}" y="{}" text-anchor="middle" fill="{}">{}</text>']
 				x = pref.svg_repl[opt_cri[-1]]
@@ -571,8 +624,14 @@ class SvgGenEsp:
 				digit_rounding = "{:.2f}".format(item[self.e_source]) if self.aesthetics["decimal"] == "2" else "{:.1f}".format(item[self.e_source])
 				g = self.aesthetics[trick_g][0] + self.commafy(digit_rounding) + self.aesthetics[trick_g][-1]
 				h = self.aesthetics[trick_h][0] + self.commafy(item[self.e_complement]) + self.aesthetics[trick_h][-1]
+				ts_dict = {
+				    " "        : "",
+				    "‡ (big)":'<tspan dy="-7" font-family="arial" font-size=".7em">{}</tspan>'.format("‡".encode("ascii", "xmlcharrefreplace").decode("utf-8")),
+				    "‡ (small)":'<tspan dy="-7" font-family="monospace" font-size=".7em">{}</tspan>'.format("‡".encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+				}
+				ts_mark = ts_dict[self.aesthetics["mark"]] if item[1] == "TS" else ""
 				a[0] = a[0].format(c_p[0], c_p[1], c_p[2], c_p[1], opt_cri[0],opt_cri[1],x)
-				a[1] = a[1].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[0], opt_cri[0],item[2].encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+				a[1] = a[1].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[0], opt_cri[0],item[2].encode("ascii", "xmlcharrefreplace").decode("utf-8"),ts_mark)
 				a[2] = a[2].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[1],opt_cri[0],str(g).encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 				a[3] = a[3].format(int((c_p[0] + c_p[2])/2), c_p[1] + z[2],opt_cri[0],str(h).encode("ascii", "xmlcharrefreplace").decode("utf-8"))
 				self.svg_code.extend(a if self.include_np else a[:-1])
@@ -582,7 +641,6 @@ class SvgGenEsp:
 					b = b.format(l_c[2], l_c[1], c_p[0], c_p[1], opt_con[0],opt_con[1],x)
 					self.svg_code.append(b)
 				l_c = c_p
-
 	@functools.lru_cache(maxsize=1)
 	def graph_connectors(self):
 		if not self.include[-1] == 1: return
@@ -606,8 +664,8 @@ class SvgGenEsp:
 			if con[0][0] < con[1][0]:
 				x = pref.svg_repl[i[6]]
 				a = '    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>'
-				a = a.format(int((con[0][0] + 1) * 80 + self.wide[1]), con[0][-1] + 50,
-							 int((con[1][0] + 1) * 80 + self.wide[0]), con[1][-1] + 50,
+				a = a.format(int((con[0][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + self.wide[1]), con[0][-1] + 50,
+							 int((con[1][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + self.wide[0]), con[1][-1] + 50,
 							 i[4],i[5],x)
 				self.svg_code.append(a)
 
@@ -729,7 +787,7 @@ class SvgGenEsp:
 			# TDI arrow
 			#print(self.data)
 			x = tdi_correct[next(a for a in self.paths[0] if a[0] == data[1][0])[5]] - 40
-			p = [(data[1][0]+ 1) * 80 + 10, data[1][1] + x]
+			p = [(data[1][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 10, data[1][1] + x]
 			a = [
 				'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDI</text>',
 				'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
@@ -738,7 +796,7 @@ class SvgGenEsp:
 			self.svg_code.extend(a)
 			# TDTS arrow
 			x = tdts_correct[next(a for a in self.paths[0] if a[0] == data[0][0])[5]] + 140
-			p = [(data[0][0] + 1) * 80 + 50, data[0][1] + x]
+			p = [(data[0][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 50, data[0][1] + x]
 			a = [
 				'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDTS</text>',
 				'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
@@ -782,7 +840,7 @@ class SvgGenEsp:
 			pass
 
 def initialize():
-	global pref, note
+	global pref, note, window
 	pref = Preferences()
 	window = tk.Tk()
 	window.title("MechaSVG v 0.0.0")
