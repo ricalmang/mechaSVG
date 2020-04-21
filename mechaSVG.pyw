@@ -8,8 +8,8 @@ class Preferences:
 		# number of structures for each path
 		self.n_structures = 19 #max = 25 for random catalytic cycle generator
 		#run command
-		self.windons_command = "start chrome.exe ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
-		self.linux_command = "chrome ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
+		self.windons_command = "start inkscape.exe ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
+		self.linux_command = "inkscape ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
 		self.command_line = self.windons_command if os.name == "nt" else self.linux_command
 		# SVG colors
 		self.menu_a = ["grey","black","blue","darkblue","red","darkred","green","darkgreen"]
@@ -19,6 +19,7 @@ class Preferences:
 		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"'}
 		# Random catalytic cycle generator
 		self.trickster = True # Include random catalytic cycle generator?
+		self.name = "MechaSVG v 0.0.0"
 		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
@@ -26,12 +27,13 @@ class Preferences:
 					 "Midle"  :[[-5,15,30],[-5,15,30]],
 					 "Bottom" :[[17,32,47],[17,32,0]]}
 		self.menu_d = list(self.placement.keys())
-		self.menu_e = [a for a in "ABCDE"] #Will change the number of Paths available
+		self.menu_e = [a for a in "ABCDEFGH"] #Will change the number of Paths available
 		self.menu_f = ["opt_{}".format(a.lower()) for a in self.menu_e]
 		self.menu_g = ["tab_{}".format(a.lower()) for a in self.menu_e]
 		self.menu_h = ["Path {}".format(a) for a in self.menu_e]
 		self.menu_i = ["#{}".format(a) for a in self.menu_e]
 		self.menu_z = [" ","TS","INT"]
+
 
 class State:
 	def __init__(self, text):
@@ -182,6 +184,7 @@ class GeneralMenu(tk.LabelFrame):
 		self.note = ttk.Notebook(self.boxify("Advanced options", 2))
 		self.note.grid(column=0, row=0, sticky="news")
 		self.note.grid_columnconfigure(0, weight=1)
+		self._change_win_title("Unsaved")
 		self._build_other_opt()
 		self._build_span_opt()
 		self._build_aesthetics()
@@ -196,7 +199,7 @@ class GeneralMenu(tk.LabelFrame):
 		for i,a in enumerate([*pref.menu_h,"Connections"]):
 			self.include.append(tk.IntVar(value=1))
 			c1 = tk.Checkbutton(box, text=a, variable=self.include[i], onvalue=1, offvalue=0)
-			c1.grid(column=i,row=0)
+			c1.grid(column=i%6,row=i//6)
 	def _build_other_opt(self):
 		box = self.framefy("Main")
 		options = ["Use enthalpy instead of free energy","Use comma as decimal","Include complementary (H or G values)"]
@@ -207,7 +210,7 @@ class GeneralMenu(tk.LabelFrame):
 	def _build_span_opt(self):
 		box = self.framefy("Span")
 		box.grid_columnconfigure(1, weight=1)
-		options = ["Atempt span","Irrespective of type (TS/INT)"]
+		options = ["Atempt span","Irrespective of type (TS/INT)","Big arrow"]
 		for i,a in enumerate(options):
 			self.span.append(tk.IntVar(value=0))
 			c1 = tk.Checkbutton(box, text=a, variable=self.span[i], onvalue=1, offvalue=0)
@@ -221,10 +224,10 @@ class GeneralMenu(tk.LabelFrame):
 		menu.config(width="8")
 		menu.grid(column=1, row=1,sticky="w")
 		label = tk.Label(box, text="Temperature (°C):")
-		label.grid(column=2, row=1)
+		label.grid(column=2, row=1, columnspan = 2)
 		self.span.append(tk.Entry(box, justify=tk.CENTER, bd=3, width=6))
 		self.span[-1].insert(0, "25")
-		self.span[-1].grid(column=3, row=1, padx="3",pady="4", sticky="news")
+		self.span[-1].grid(column=4, row=1, padx="3",pady="4", sticky="news")
 
 
 	def _build_aesthetics(self):
@@ -234,8 +237,6 @@ class GeneralMenu(tk.LabelFrame):
 		c = [1,2]
 		e = [a,a,b,c]
 		f = ["G:","H:","Width:","Decimal"]
-
-
 		for a,(b,c) in enumerate(zip(f,e)):
 			label = tk.Label(box,text=b)
 			label.grid(column=2*a,row=0)
@@ -245,7 +246,6 @@ class GeneralMenu(tk.LabelFrame):
 			menu.grid(column=a * 2 + 1, row=0)
 		for i,a in enumerate(["   ","( )",10,1]):
 			self.aesthetics[i].set(a)
-
 		a = [0 + a * 10 for a in range(11)]
 		b = [60 + a * 5 for a in range(11)]
 		c = [" ","‡ (big)","‡ (small)"]
@@ -286,7 +286,7 @@ class GeneralMenu(tk.LabelFrame):
 		button.grid(column=4,row=0,sticky="e")
 		box.grid_columnconfigure(0, weight=1)
 	def _build_generator(self,idx):
-		box = self.boxify("Generate random catalytic cycle (Trickster)", idx)
+		box = self.boxify("Generate random catalytic cycle", idx)
 		label = tk.Label(box, text="Random catalytic cycle generator")
 		label.pack(side=tk.LEFT)
 		button = tk.Button(box, text="Fill in data", command=self._ask_confirmation, padx="1")
@@ -377,7 +377,7 @@ class GeneralMenu(tk.LabelFrame):
 			self._change_win_title("Unsaved")
 			if hasattr(self,"f"): del(self.f)
 	def _change_win_title(self,path):
-		window.title("MechaSVG v 0.0.0 @ {}".format(path))
+		window.title("{} @ {}".format(pref.name,path))
 	def _blank_state(self):
 		msgbox = tk.messagebox.askquestion('Close document', 'Are you sure? All unsaved data will be lost!', icon='warning')
 		if msgbox != "yes":return
@@ -488,11 +488,10 @@ class GeneralMenu(tk.LabelFrame):
 			"title" : {a:b.get() for a,b in zip(["main","y","x"],self.titles)},#ok
 			"main" : {a: b.get() for a, b in zip(["energy", "comma", "include"], self.main)}, #ok
 			"aesthetics" : {a:b.get() for a,b in zip(["g","h","width","decimal","offset","distance","mark"],self.aesthetics)},#ok
-			"span" : {a:b.get() for a,b in zip(["span","irrespective","units","temperature"],self.span)}
+			"span" : {a:b.get() for a,b in zip(["span","irrespective","big_arrow","units","temperature"],self.span)}
 		}
 		msg = SvgGenEsp(**kwargs).save_svg(svg_name)
 		if not msg is None: self.message(msg)
-
 class SvgGenEsp:
 	def __init__(self,state,include,title,main,aesthetics,span):
 		self.span_worthy = True
@@ -509,6 +508,7 @@ class SvgGenEsp:
 		self.include_np = True if main["include"] == 1 else False
 		if self.span_request:
 			self.temperature = self._verify_temp(span["temperature"])
+		self.big_arrow = True if span["big_arrow"] == 1 else False
 		################################################################################################################
 		self.state = state
 		self.tab_v = ["tab_{}_v".format(a.lower()) for a in pref.menu_e]
@@ -735,7 +735,7 @@ class SvgGenEsp:
 			self.msg.append("X(tof) for intermediates:")
 			self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_ts))
 			self.msg.append("X(tof) for transition states:")
-			self.msg.append("TOF as catalytic flux law: {:5e} per hour\n".format(tof * 3600))
+			self.msg.append("TOF as catalytic flux law: {:5e} /h\n".format(tof * 3600))
 			if abs(tof) > 1e8:
 				self.msg.append("ALERT: Please consider the possibility of diffusion control rates\n")
 		#CONDITIONALS FOR SPAN
@@ -784,26 +784,47 @@ class SvgGenEsp:
 			span = self.span_dg()[1]
 			data = sorted(data,key=lambda x: x[1])
 			delta_e = self.paths[0][-1][self.e_source]-self.paths[0][0][self.e_source]
-			# TDI arrow
-			#print(self.data)
-			x = tdi_correct[next(a for a in self.paths[0] if a[0] == data[1][0])[5]] - 40
-			p = [(data[1][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 10, data[1][1] + x]
-			a = [
-				'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDI</text>',
-				'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
-			a[0] = a[0].format(p[0] + 20, p[1])
-			a[1] = a[1].format(10 + p[0], 10 + p[1], 30 + p[0], 40 + p[1], 40 + p[0], 20 + p[0], 70 + p[1], 0 + p[0])
-			self.svg_code.extend(a)
-			# TDTS arrow
-			x = tdts_correct[next(a for a in self.paths[0] if a[0] == data[0][0])[5]] + 140
-			p = [(data[0][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 50, data[0][1] + x]
-			a = [
-				'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDTS</text>',
-				'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
-			a[0] = a[0].format(p[0] - 20, p[1] + 10)
-			a[1] = a[1].format(-10 + p[0], -10 + p[1], -30 + p[0], -40 + p[1], -40 + p[0], -20 + p[0], -70 + p[1],
-							   0 + p[0])
-			self.svg_code.extend(a)
+			if self.big_arrow:
+				# TDI arrow big
+				# print(self.data)
+				x = tdi_correct[next(a for a in self.paths[0] if a[0] == data[1][0])[5]] - 40
+				p = [(data[1][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 10, data[1][1] + x]
+				a = [
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDI</text>',
+					'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
+				a[0] = a[0].format(p[0] + 20, p[1])
+				a[1] = a[1].format(10 + p[0], 10 + p[1], 30 + p[0], 40 + p[1], 40 + p[0], 20 + p[0], 70 + p[1], 0 + p[0])
+				self.svg_code.extend(a)
+				# TDTS arrow
+				x = tdts_correct[next(a for a in self.paths[0] if a[0] == data[0][0])[5]] + 140
+				p = [(data[0][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 50, data[0][1] + x]
+				a = [
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDTS</text>',
+					'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
+				a[0] = a[0].format(p[0] - 20, p[1] + 10)
+				a[1] = a[1].format(-10 + p[0], -10 + p[1], -30 + p[0], -40 + p[1], -40 + p[0], -20 + p[0], -70 + p[1],
+								   0 + p[0])
+				self.svg_code.extend(a)
+			else:
+				# TDI arrow
+				# print(self.data)
+				x = tdi_correct[next(a for a in self.paths[0] if a[0] == data[1][0])[5]] - 40
+				p = [(data[1][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 10, data[1][1] + x]
+				a = [
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDI</text>',
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">{}</text>']
+				a[0] = a[0].format(p[0] + 20, p[1] + 45)
+				a[1] = a[1].format(p[0] + 20, p[1] + 63,"↓".encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+				self.svg_code.extend(a)
+				# TDTS arrow
+				x = tdts_correct[next(a for a in self.paths[0] if a[0] == data[0][0])[5]] + 140
+				p = [(data[0][0]) * int(self.aesthetics["distance"]) + int(self.aesthetics["offset"]) + 50, data[0][1] + x]
+				a = [
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDTS</text>',
+					'    <text x="{}" y="{}" text-anchor="middle" fill="black">{}</text>']
+				a[0] = a[0].format(p[0] - 20, p[1] -30)
+				a[1] = a[1].format(p[0] - 20, p[1] -53,"↑".encode("ascii", "xmlcharrefreplace").decode("utf-8"))
+				self.svg_code.extend(a)
 			# dg and span anotations
 			a = [
 				'    <text x="120" y="450" text-anchor="left" fill="black">Delta = {}</text>',
@@ -843,7 +864,6 @@ def initialize():
 	global pref, note, window
 	pref = Preferences()
 	window = tk.Tk()
-	window.title("MechaSVG v 0.0.0")
 	#NOTEBOOK
 	frame1 = tk.Frame(master=window)
 	frame1.grid(column=0,row=0,rowspan=2,sticky="news")
