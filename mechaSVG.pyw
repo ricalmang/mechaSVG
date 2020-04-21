@@ -4,7 +4,7 @@ import os, random, datetime, functools, math
 
 class Preferences:
 	def __init__(self):
-		################################### RELATIVELY STRAIGHTFORWARD MODIFICATIONS ###########################################
+		################################ RELATIVELY STRAIGHTFORWARD MODIFICATIONS ######################################
 		# number of structures for each path
 		self.n_structures = 19 #max = 25 for random catalytic cycle generator
 		#run command
@@ -19,7 +19,7 @@ class Preferences:
 		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"'}
 		# Random catalytic cycle generator
 		self.trickster = True # Include random catalytic cycle generator?
-		self.name = "MechaSVG v 0.0.3"
+		self.name = "MechaSVG v 0.0.0"
 		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
