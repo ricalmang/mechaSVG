@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import os, random, datetime, functools, math
+import os, random, datetime, functools, math, sys
+
+
 
 class Preferences:
 	def __init__(self):
@@ -33,6 +35,9 @@ class Preferences:
 		self.menu_h = ["Path {}".format(a) for a in self.menu_e]
 		self.menu_i = ["#{}".format(a) for a in self.menu_e]
 		self.menu_z = [" ","TS","INT"]
+		filename = sys.argv[-1]
+		if os.path.isfile(filename) and filename.endswith(".ssf"):
+			self.filename = filename
 
 
 class State:
@@ -180,6 +185,8 @@ class GeneralMenu(tk.LabelFrame):
 		self.aesthetics = []
 		###BUILD
 		self._build_all()
+		if hasattr(pref,"filename"):
+			self.load_state(getattr(pref,"filename"))
 	def _build_all(self):
 		self.note = ttk.Notebook(self.boxify("Advanced options", 2))
 		self.note.grid(column=0, row=0, sticky="news")
@@ -446,10 +453,11 @@ class GeneralMenu(tk.LabelFrame):
 				raw_data.append("/|".join([n.get() for n in a]))
 		raw_data.append("#CON")
 		return raw_data
-	def load_state(self):
-		file_n = tk.filedialog.askopenfilename(title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")])
-		if file_n == "": return
-		state = None
+	def load_state(self,file_n=None):
+		if file_n is None:
+			file_n = tk.filedialog.askopenfilename(title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")])
+			if file_n == "": return
+			state = None
 		try:
 			with open(file_n,mode="r") as file:
 				state = "".join(file.read().splitlines()).split("/$")
@@ -457,23 +465,26 @@ class GeneralMenu(tk.LabelFrame):
 			self.f = "file_n"
 		except FileNotFoundError:
 			return
-		state = State(state)
-		notes = [getattr(note,a) for a in pref.menu_g]
-		dat_states = [getattr(state,a) for a in pref.menu_g]
-		opt_states = [getattr(state,a) for a in pref.menu_f]
-		for a,b,c in zip(notes,dat_states,opt_states):
-			for n in range(3):
-				for d in range(2):
-					a.option_menu.line_opt_data[d][n].set(c[0][n])
-			for i,line in enumerate(b):
+		try:
+			state = State(state)
+			notes = [getattr(note,a) for a in pref.menu_g]
+			dat_states = [getattr(state,a) for a in pref.menu_g]
+			opt_states = [getattr(state,a) for a in pref.menu_f]
+			for a,b,c in zip(notes,dat_states,opt_states):
 				for n in range(3):
-					a.data[i][n+1].delete(0,tk.END)
-					a.data[i][n+1].insert(0,line[n+1])
-				a.data[i][0].set(line[0])
-				a.data[i][4].set(line[4])
-		for i,line in enumerate(state.con):
-			for n in range(7):
-				note.tab_connections.data[i][n].set(line[n])
+					for d in range(2):
+						a.option_menu.line_opt_data[d][n].set(c[0][n])
+				for i,line in enumerate(b):
+					for n in range(3):
+						a.data[i][n+1].delete(0,tk.END)
+						a.data[i][n+1].insert(0,line[n+1])
+					a.data[i][0].set(line[0])
+					a.data[i][4].set(line[4])
+			for i,line in enumerate(state.con):
+				for n in range(7):
+					note.tab_connections.data[i][n].set(line[n])
+		except IndexError:
+			pass
 	def save_svg_as(self):
 		return tk.filedialog.asksaveasfilename(defaultextension=".svg", title="Save svg", filetypes=[("Scalable Vector Graphics", ".svg")])
 	def run_data_a(self):
