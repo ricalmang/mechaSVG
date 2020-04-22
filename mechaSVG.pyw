@@ -10,6 +10,7 @@ class Preferences:
 		# number of structures for each path
 		self.n_structures = 19 #max = 25 for random catalytic cycle generator
 		#run command
+		self.n_connectors = 8
 		self.windons_command = "start inkscape.exe ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
 		self.linux_command = "inkscape ./.E_profile.svg" # Please note .E_profile.svg is a hidden file!
 		self.command_line = self.windons_command if os.name == "nt" else self.linux_command
@@ -50,10 +51,22 @@ class State:
 			if len(a) == 5:	tab.append(a)
 			elif len(a) == 3: opt.append(a)
 			elif len(a) == 1:
-				if a[0] == "#CON": self.con = con; break
-				if not a[0] in ["#{}".format(n) for n in pref.menu_e]: continue
+				if a[0] == "#CON":
+					if len(con) > pref.n_connectors:
+						print("Exceeding number of conectors")
+					self.con = con[:min(len(con),pref.n_connectors)]
+					break
+				if not a[0] in ["#{}".format(n) for n in pref.menu_e]:
+					if a[0] in ["#{}".format(n) for n in "ABCDEFGHIJKLMNOPQRSTUVXYZ"]:
+						print("Exceeding number of paths")
+					continue
 				for b,c,d in zip(pref.menu_i,pref.menu_g,pref.menu_f):
-					if a[0] == b: setattr(self,c,tab);setattr(self,d,opt); tab, opt = [],[]
+					if a[0] == b:
+						if len(tab) > pref.n_structures:
+							print("Exceding number of structures")
+						setattr(self,c,tab[:min(len(tab),pref.n_structures)])
+						setattr(self,d,opt)
+						tab, opt = [],[]
 			elif len(a) == 7: con.append(a)
 	def print_interpretation(self):
 		for a in vars(self):
@@ -149,8 +162,8 @@ class TabFrameConnections(ttk.Frame):
 		ttk.Frame.__init__(self,parent,*args,**kwargs)
 		self.parent = parent
 		self.parent.add(self, text=name)
-		self.data = [[None,None,None,None,None,None,None] for _ in range(8)]
-		for n in range(8):
+		self.data = [[None,None,None,None,None,None,None] for _ in range(pref.n_connectors)]
+		for n in range(pref.n_connectors):
 			con = tk.LabelFrame(self,text="Conector {}".format(n+1))
 			con.grid(column=0, row=n*2,  columnspan=5, pady="0",padx="2", rowspan=2,sticky="news")
 			for b in range(2):
@@ -186,7 +199,9 @@ class GeneralMenu(tk.LabelFrame):
 		###BUILD
 		self._build_all()
 		if hasattr(pref,"filename"):
+			self.f = pref.filename
 			self.load_state(getattr(pref,"filename"))
+
 	def _build_all(self):
 		self.note = ttk.Notebook(self.boxify("Advanced options", 2))
 		self.note.grid(column=0, row=0, sticky="news")
@@ -334,6 +349,7 @@ class GeneralMenu(tk.LabelFrame):
 		try:
 			with open(self.f,"w") as out: out.write(txt)
 		except AttributeError: self._save_as()
+		except FileNotFoundError: self._save_as()
 	def _save_as(self):
 		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
 		self.f = tk.filedialog.asksaveasfilename(defaultextension=".ssf",title="Save state",filetypes = [("Saved State File", ".ssf")])
@@ -400,7 +416,7 @@ class GeneralMenu(tk.LabelFrame):
 			for n in range(2):
 				for idx, b in zip([0, 1, 2], [pref.menu_a, pref.menu_b, pref.menu_c]):
 					a.option_menu.line_opt_data[n][idx].set(b[[1,1,0][idx] if n == 0 else [1,0,2][idx]])
-		for a in range(8):
+		for a in range(pref.n_connectors):
 			for b in range(4):
 				note.tab_connections.data[a][b].set("")
 			for b,c in zip(range(3),[pref.menu_a, pref.menu_b, pref.menu_c]):
@@ -462,7 +478,7 @@ class GeneralMenu(tk.LabelFrame):
 			with open(file_n,mode="r") as file:
 				state = "".join(file.read().splitlines()).split("/$")
 			self._change_win_title(file_n)
-			self.f = "file_n"
+			self.f = file_n
 		except FileNotFoundError:
 			return
 		try:
@@ -473,7 +489,7 @@ class GeneralMenu(tk.LabelFrame):
 			for a,b,c in zip(notes,dat_states,opt_states):
 				for n in range(3):
 					for d in range(2):
-						a.option_menu.line_opt_data[d][n].set(c[0][n])
+						a.option_menu.line_opt_data[d][n].set(c[d][n])
 				for i,line in enumerate(b):
 					for n in range(3):
 						a.data[i][n+1].delete(0,tk.END)
