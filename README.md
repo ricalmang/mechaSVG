@@ -28,9 +28,6 @@ py ./mechaSVG.pyw
 python3 ./mechaSVG.pyw
 ```
 ```bash
-pip3 ./mechaSVG.pyw
-```
-```bash
 python ./mechaSVG.pyw
 ```
 
