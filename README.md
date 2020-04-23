@@ -8,7 +8,11 @@ Calculate TOF as *catalytic-flux law*
 
 # Preview
 
+## Graphical interface
+
 ![Interface](/image.png)
+
+## Output graph
 
 ![Graph](/teste.svg)
 
@@ -30,4 +34,4 @@ python ./mechaSVG.pyw
 
 # References
 
-¹Kozuch, S. & Shaik, S. *Acc. Chem. Res.* **2011**, *44*, 101.[(Paper)](https://pubs.acs.org/doi/10.1021/ar1000956)
+¹Kozuch, S. & Shaik, S. *Acc. Chem. Res.* **2011**, *44*, 101. [(Paper)](https://pubs.acs.org/doi/10.1021/ar1000956)
