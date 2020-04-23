@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg width="1375" viewBox="30 0 1375 500" height="500" xmlns="http://www.w3.org/2000/svg">
+    <line x1="100" y1="25" x2="100" y2="475" stroke="black" stroke-width="2"/>
+    <line x1="100" y1="475" x2="1350" y2="475" stroke="black" stroke-width="2"/>
+    <text x="615" y="20" font-size="22" text-anchor="middle" fill="black">Diagrama de rea&#231;&#227;o</text>
+    <text x="-250" y="55" font-size="22" transform="rotate(-90)" text-anchor="middle" fill="black">Energia livre (&#916;G) em kcal/mol</text>
+    <text x="615" y="495" font-size="22" text-anchor="middle" fill="black">Cordenada de rea&#231;&#227;o</text>
+    <line x1="100" y1="43" x2="105" y2="43" stroke="black" stroke-width="2"/>
+    <text x="80" y="43" text-anchor="middle" fill="black">60,0</text>
+    <line x1="100" y1="77" x2="105" y2="77" stroke="black" stroke-width="2"/>
+    <text x="80" y="77" text-anchor="middle" fill="black">50,0</text>
+    <line x1="100" y1="110" x2="105" y2="110" stroke="black" stroke-width="2"/>
+    <text x="80" y="110" text-anchor="middle" fill="black">40,0</text>
+    <line x1="100" y1="144" x2="105" y2="144" stroke="black" stroke-width="2"/>
+    <text x="80" y="144" text-anchor="middle" fill="black">30,0</text>
+    <line x1="100" y1="178" x2="105" y2="178" stroke="black" stroke-width="2"/>
+    <text x="80" y="178" text-anchor="middle" fill="black">20,0</text>
+    <line x1="100" y1="211" x2="105" y2="211" stroke="black" stroke-width="2"/>
+    <text x="80" y="211" text-anchor="middle" fill="black">10,0</text>
+    <line x1="100" y1="245" x2="105" y2="245" stroke="black" stroke-width="2"/>
+    <text x="80" y="245" text-anchor="middle" fill="black">0,0</text>
+    <line x1="100" y1="278" x2="105" y2="278" stroke="black" stroke-width="2"/>
+    <text x="80" y="278" text-anchor="middle" fill="black">-10,0</text>
+    <line x1="100" y1="312" x2="105" y2="312" stroke="black" stroke-width="2"/>
+    <text x="80" y="312" text-anchor="middle" fill="black">-20,0</text>
+    <line x1="100" y1="346" x2="105" y2="346" stroke="black" stroke-width="2"/>
+    <text x="80" y="346" text-anchor="middle" fill="black">-30,0</text>
+    <line x1="100" y1="379" x2="105" y2="379" stroke="black" stroke-width="2"/>
+    <text x="80" y="379" text-anchor="middle" fill="black">-40,0</text>
+    <line x1="100" y1="413" x2="105" y2="413" stroke="black" stroke-width="2"/>
+    <text x="80" y="413" text-anchor="middle" fill="black">-50,0</text>
+    <line x1="100" y1="447" x2="105" y2="447" stroke="black" stroke-width="2"/>
+    <text x="80" y="447" text-anchor="middle" fill="black">-60,0</text>
+    <line x1="141" y1="143" x2="189" y2="143" stroke="black" stroke-width="3" />
+    <text x="165" y="138" text-anchor="middle" fill="black">A</text>
+    <text x="165" y="158" text-anchor="middle" fill="black"> 30,32 </text>
+    <text x="165" y="173" text-anchor="middle" fill="black">(30,20)</text>
+    <line x1="236" y1="140" x2="284" y2="140" stroke="black" stroke-width="3" />
+    <text x="260" y="135" text-anchor="middle" fill="black">B<tspan dy="-7" font-family="arial" font-size=".7em">&#8225;</tspan></text>
+    <text x="260" y="155" text-anchor="middle" fill="black"> 31,13 </text>
+    <text x="260" y="170" text-anchor="middle" fill="black">(32,01)</text>
+    <line x1="189" y1="143" x2="236" y2="140" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="331" y1="378" x2="379" y2="378" stroke="black" stroke-width="3" />
+    <text x="355" y="373" text-anchor="middle" fill="black">C</text>
+    <text x="355" y="393" text-anchor="middle" fill="black"> -39,68 </text>
+    <text x="355" y="408" text-anchor="middle" fill="black">(-39,53)</text>
+    <line x1="284" y1="140" x2="331" y2="378" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="426" y1="68" x2="474" y2="68" stroke="black" stroke-width="3" />
+    <text x="450" y="63" text-anchor="middle" fill="black">D<tspan dy="-7" font-family="arial" font-size=".7em">&#8225;</tspan></text>
+    <text x="450" y="83" text-anchor="middle" fill="black"> 52,50 </text>
+    <text x="450" y="98" text-anchor="middle" fill="black">(51,73)</text>
+    <line x1="379" y1="378" x2="426" y2="68" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="521" y1="450" x2="569" y2="450" stroke="black" stroke-width="3" />
+    <text x="545" y="413" text-anchor="middle" fill="black">E</text>
+    <text x="545" y="428" text-anchor="middle" fill="black"> -61,04 </text>
+    <text x="545" y="443" text-anchor="middle" fill="black">(-60,15)</text>
+    <line x1="474" y1="68" x2="521" y2="450" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="616" y1="272" x2="664" y2="272" stroke="black" stroke-width="3" />
+    <text x="640" y="267" text-anchor="middle" fill="black">F<tspan dy="-7" font-family="arial" font-size=".7em">&#8225;</tspan></text>
+    <text x="640" y="287" text-anchor="middle" fill="black"> -7,94 </text>
+    <text x="640" y="302" text-anchor="middle" fill="black">(-7,70)</text>
+    <line x1="569" y1="450" x2="616" y2="272" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="711" y1="294" x2="759" y2="294" stroke="black" stroke-width="3" />
+    <text x="735" y="289" text-anchor="middle" fill="black">G</text>
+    <text x="735" y="309" text-anchor="middle" fill="black"> -14,65 </text>
+    <text x="735" y="324" text-anchor="middle" fill="black">(-14,46)</text>
+    <line x1="664" y1="272" x2="711" y2="294" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="806" y1="292" x2="854" y2="292" stroke="black" stroke-width="3" />
+    <text x="830" y="287" text-anchor="middle" fill="black">H</text>
+    <text x="830" y="307" text-anchor="middle" fill="black"> -14,04 </text>
+    <text x="830" y="322" text-anchor="middle" fill="black">(-13,22)</text>
+    <line x1="759" y1="294" x2="806" y2="292" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="901" y1="50" x2="949" y2="50" stroke="black" stroke-width="3" />
+    <text x="925" y="45" text-anchor="middle" fill="black">I<tspan dy="-7" font-family="arial" font-size=".7em">&#8225;</tspan></text>
+    <text x="925" y="65" text-anchor="middle" fill="black"> 57,99 </text>
+    <text x="925" y="80" text-anchor="middle" fill="black">(57,56)</text>
+    <line x1="854" y1="292" x2="901" y2="50" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="996" y1="192" x2="1044" y2="192" stroke="black" stroke-width="3" />
+    <text x="1020" y="187" text-anchor="middle" fill="black">J</text>
+    <text x="1020" y="207" text-anchor="middle" fill="black"> 15,87 </text>
+    <text x="1020" y="222" text-anchor="middle" fill="black">(15,85)</text>
+    <line x1="949" y1="50" x2="996" y2="192" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1091" y1="124" x2="1139" y2="124" stroke="black" stroke-width="3" />
+    <text x="1115" y="119" text-anchor="middle" fill="black">K<tspan dy="-7" font-family="arial" font-size=".7em">&#8225;</tspan></text>
+    <text x="1115" y="139" text-anchor="middle" fill="black"> 36,01 </text>
+    <text x="1115" y="154" text-anchor="middle" fill="black">(36,06)</text>
+    <line x1="1044" y1="192" x2="1091" y2="124" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1186" y1="300" x2="1234" y2="300" stroke="black" stroke-width="3" />
+    <text x="1210" y="295" text-anchor="middle" fill="black">L</text>
+    <text x="1210" y="315" text-anchor="middle" fill="black"> -16,48 </text>
+    <text x="1210" y="330" text-anchor="middle" fill="black">(-16,07)</text>
+    <line x1="1139" y1="124" x2="1186" y2="300" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1281" y1="395" x2="1329" y2="395" stroke="black" stroke-width="3" />
+    <text x="1305" y="390" text-anchor="middle" fill="black">A'</text>
+    <text x="1305" y="410" text-anchor="middle" fill="black"> -44,56 </text>
+    <text x="1305" y="425" text-anchor="middle" fill="black">(-45,13)</text>
+    <line x1="1234" y1="300" x2="1281" y2="395" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <text x="545" y="370" text-anchor="middle" fill="black">TDI</text>
+    <text x="545" y="388" text-anchor="middle" fill="black">&#8595;</text>
+    <text x="925" y="128" text-anchor="middle" fill="black">TDTS</text>
+    <text x="925" y="105" text-anchor="middle" fill="black">&#8593;</text>
+    <text x="120" y="450" text-anchor="left" fill="black">Delta = -74,88</text>
+    <text x="120" y="470" text-anchor="left" fill="black">Span = 119,03</text>
+</svg>

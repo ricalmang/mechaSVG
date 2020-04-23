@@ -8,7 +8,7 @@ Calculate TOF as *catalytic-flux law*
 
 # Preview
 
-
+![Interface](github.com/ricalmang/mechaSVG/teste.svg)
 
 # Running
 The program can ben run directly with python 3.5+ without installation.
@@ -28,4 +28,4 @@ python ./mechaSVG.pyw
 
 # References
 
-¹Kozuch, S. & Shaik, S. *Acc. Chem. Res.* **2011**, *44*, 101.
+¹Kozuch, S. & Shaik, S. *Acc. Chem. Res.* **2011**, *44*, 101.[Paper](pubs.acs.org/doi/10.1021/ar1000956)
