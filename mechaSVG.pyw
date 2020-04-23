@@ -362,39 +362,45 @@ class GeneralMenu(tk.LabelFrame):
 		size = random.random()
 		max_value = min(len(names), pref.n_structures)
 		lenght = random.randint(1,max_value)
+		tab = getattr(note,[a for a in pref.menu_g][note.index(note.select())])
 		for i,n in zip(range(max_value),names):
 			value = size*random.randrange(-100,100)
-			for idx in range(len(note.tab_a.data[i])):
+			for idx in range(len(tab.data[i])):
 				if idx == 1:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i+1 < lenght: note.tab_a.data[i][idx].insert(0, n)
-					elif i + 1 == lenght: note.tab_a.data[i][idx].insert(0, "A'")
+					tab.data[i][idx].delete(0, tk.END)
+					if i+1 < lenght: tab.data[i][idx].insert(0, n)
+					elif i + 1 == lenght: tab.data[i][idx].insert(0, "A'")
 				elif idx == 2:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value))
+					tab.data[i][idx].delete(0, tk.END)
+					if i < lenght: tab.data[i][idx].insert(0,"{:.2f}".format(value))
 				elif idx == 3:
-					note.tab_a.data[i][idx].delete(0, tk.END)
-					if i < lenght: note.tab_a.data[i][idx].insert(0,"{:.2f}".format(value + random.choice([-random.random(), +random.random()])))
+					tab.data[i][idx].delete(0, tk.END)
+					if i < lenght: tab.data[i][idx].insert(0,"{:.2f}".format(value + random.choice([-random.random(), +random.random()])))
 				elif idx == 4:
-					note.tab_a.data[i][idx].set(pref.menu_d[1])
+					tab.data[i][idx].set(pref.menu_d[1])
 		max_v, min_v = None, None
 		for i in range(max_value):
-			if max_v is None: max_v = [i,note.tab_a.data[i][2].get()]
-			if min_v is None: min_v = [i,note.tab_a.data[i][2].get()]
-			if i < lenght and float(note.tab_a.data[i][2].get()) > float(max_v[1]): max_v = [i, note.tab_a.data[i][2].get()]
-			if i < lenght and float(note.tab_a.data[i][2].get()) < float(min_v[1]) : min_v = [i, note.tab_a.data[i][2].get()]
-			if i == 0: note.tab_a.data[i][0].set("INT")
-			elif i+1 == lenght: note.tab_a.data[i][0].set("INT")
-			elif i >= lenght: note.tab_a.data[i][0].set("  ")
+			if max_v is None: max_v = [i,tab.data[i][2].get()]
+			if min_v is None: min_v = [i,tab.data[i][2].get()]
+			if i < lenght and float(tab.data[i][2].get()) > float(max_v[1]): max_v = [i, tab.data[i][2].get()]
+			if i < lenght and float(tab.data[i][2].get()) < float(min_v[1]) : min_v = [i, tab.data[i][2].get()]
+			if i == 0: tab.data[i][0].set("INT")
+			elif i+1 == lenght: tab.data[i][0].set("INT")
+			elif i >= lenght: tab.data[i][0].set("  ")
 			else:
-				if float(note.tab_a.data[i-1][2].get()) < float(note.tab_a.data[i][2].get()) > float(note.tab_a.data[i+1][2].get()):
-					note.tab_a.data[i][0].set("TS")
+				if float(tab.data[i-1][2].get()) < float(tab.data[i][2].get()) > float(tab.data[i+1][2].get()):
+					tab.data[i][0].set("TS")
 				else:
-					note.tab_a.data[i][0].set("INT")
-		note.tab_a.data[max_v[0]][4].set(pref.menu_d[2])
-		note.tab_a.data[min_v[0]][4].set(pref.menu_d[0])
+					tab.data[i][0].set("INT")
+		tab.data[max_v[0]][4].set(pref.menu_d[2])
+		tab.data[min_v[0]][4].set(pref.menu_d[0])
 	def _ask_confirmation(self):
-		msgbox = tk.messagebox.askquestion('Fill in random catalytic cycle', 'Are you sure? All unsaved data will be lost!', icon='warning')
+		if note.index(tk.END) + -1 <= note.index(note.select()):
+			self.message("Cannot fill in data for connection tab!\n")
+			return
+		msgbox = tk.messagebox.askquestion(
+			'Fill in random catalytic cycle at {}'.format(pref.menu_h[note.index(note.select())]),
+			'Are you sure? All unsaved data will be lost!', icon='warning')
 		if msgbox == "yes":
 			self.fill_in()
 			self._change_win_title("Unsaved")
@@ -474,7 +480,9 @@ class GeneralMenu(tk.LabelFrame):
 			file_n = tk.filedialog.askopenfilename(title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")])
 			if file_n == "": return
 			state = None
+
 		try:
+			if file_n == "": return
 			with open(file_n,mode="r") as file:
 				state = "".join(file.read().splitlines()).split("/$")
 			self._change_win_title(file_n)
