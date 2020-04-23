@@ -8,7 +8,9 @@ Calculate TOF as *catalytic-flux law*
 
 # Preview
 
-![Interface](/teste.svg)
+![Interface](/image.png)
+
+![Graph](/teste.svg)
 
 # Running
 The program can ben run directly with python 3.5+ without installation.
