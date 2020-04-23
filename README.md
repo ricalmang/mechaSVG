@@ -8,6 +8,8 @@ Calculate TOF as *catalytic-flux law*
 
 ## Preview
 
+The following pictures ilustrate the usage of the graphical user interface and the corresponding output
+
 ### Graphical interface
 
 ![Interface](/image.png)
