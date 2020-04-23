@@ -193,7 +193,7 @@ class GeneralMenu(tk.LabelFrame):
 		self.include = []
 		self.main = []
 		self.span = []
-		self.titles = ["Main title", "Energy level", "Reaction cordinate"]
+		self.titles = ["Main Title", "ΔE in kcal·mol⁻¹", "Reaction coordinate"]
 		self.command = ""
 		self.aesthetics = []
 		###BUILD
