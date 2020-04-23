@@ -16,8 +16,8 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ### Output graphs
 
-Example 1
-![Graph 1](/example_1.svg)
+>Example 1
+>![Graph 1](/example_1.svg)
 
 >Example 2
 >![Graph 2](/example_2.svg)
