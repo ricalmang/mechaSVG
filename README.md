@@ -14,9 +14,11 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ![Interface](/image.png)
 
-### Output graph
+### Output graphs
 
-![Graph](/teste.svg)
+![Graph 1](/example_1.svg)
+
+![Graph 2](/example_2.svg)
 
 ## Running
 The program can ben run directly with python 3.5+ without installation.

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg width="1340" viewBox="30 0 1340 500" height="500" xmlns="http://www.w3.org/2000/svg">
+    <line x1="100" y1="25" x2="100" y2="475" stroke="black" stroke-width="2"/>
+    <line x1="100" y1="475" x2="1315" y2="475" stroke="black" stroke-width="2"/>
+    <text x="680" y="20" font-size="22" text-anchor="middle" fill="black">Main Title</text>
+    <text x="-250" y="55" font-size="22" transform="rotate(-90)" text-anchor="middle" fill="black">&#916;E in kcal&#183;mol&#8315;&#185;</text>
+    <text x="680" y="495" font-size="22" text-anchor="middle" fill="black">Reaction coordinate</text>
+    <line x1="100" y1="55" x2="105" y2="55" stroke="black" stroke-width="2"/>
+    <text x="80" y="55" text-anchor="middle" fill="black">30.0</text>
+    <line x1="100" y1="88" x2="105" y2="88" stroke="black" stroke-width="2"/>
+    <text x="80" y="88" text-anchor="middle" fill="black">25.0</text>
+    <line x1="100" y1="120" x2="105" y2="120" stroke="black" stroke-width="2"/>
+    <text x="80" y="120" text-anchor="middle" fill="black">20.0</text>
+    <line x1="100" y1="153" x2="105" y2="153" stroke="black" stroke-width="2"/>
+    <text x="80" y="153" text-anchor="middle" fill="black">15.0</text>
+    <line x1="100" y1="186" x2="105" y2="186" stroke="black" stroke-width="2"/>
+    <text x="80" y="186" text-anchor="middle" fill="black">10.0</text>
+    <line x1="100" y1="218" x2="105" y2="218" stroke="black" stroke-width="2"/>
+    <text x="80" y="218" text-anchor="middle" fill="black">5.0</text>
+    <line x1="100" y1="251" x2="105" y2="251" stroke="black" stroke-width="2"/>
+    <text x="80" y="251" text-anchor="middle" fill="black">0.0</text>
+    <line x1="100" y1="284" x2="105" y2="284" stroke="black" stroke-width="2"/>
+    <text x="80" y="284" text-anchor="middle" fill="black">-5.0</text>
+    <line x1="100" y1="316" x2="105" y2="316" stroke="black" stroke-width="2"/>
+    <text x="80" y="316" text-anchor="middle" fill="black">-10.0</text>
+    <line x1="100" y1="349" x2="105" y2="349" stroke="black" stroke-width="2"/>
+    <text x="80" y="349" text-anchor="middle" fill="black">-15.0</text>
+    <line x1="100" y1="382" x2="105" y2="382" stroke="black" stroke-width="2"/>
+    <text x="80" y="382" text-anchor="middle" fill="black">-20.0</text>
+    <line x1="100" y1="414" x2="105" y2="414" stroke="black" stroke-width="2"/>
+    <text x="80" y="414" text-anchor="middle" fill="black">-25.0</text>
+    <line x1="100" y1="447" x2="105" y2="447" stroke="black" stroke-width="2"/>
+    <text x="80" y="447" text-anchor="middle" fill="black">-30.0</text>
+    <line x1="130" y1="200" x2="170" y2="200" stroke="black" stroke-width="3" />
+    <text x="150" y="195" text-anchor="middle" fill="black">A</text>
+    <text x="150" y="215" text-anchor="middle" fill="black"> 7.77 </text>
+    <line x1="210" y1="50" x2="250" y2="50" stroke="black" stroke-width="3" />
+    <text x="230" y="45" text-anchor="middle" fill="black">B<tspan dy="-7" font-family="monospace" font-size=".7em">&#8225;</tspan></text>
+    <text x="230" y="65" text-anchor="middle" fill="black"> 30.75 </text>
+    <line x1="170" y1="200" x2="210" y2="50" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="290" y1="162" x2="330" y2="162" stroke="black" stroke-width="3" />
+    <text x="310" y="157" text-anchor="middle" fill="black">C</text>
+    <text x="310" y="177" text-anchor="middle" fill="black"> 13.67 </text>
+    <line x1="250" y1="50" x2="290" y2="162" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="370" y1="383" x2="410" y2="383" stroke="black" stroke-width="3" />
+    <text x="390" y="378" text-anchor="middle" fill="black">D</text>
+    <text x="390" y="398" text-anchor="middle" fill="black"> -20.19 </text>
+    <line x1="330" y1="162" x2="370" y2="383" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="450" y1="304" x2="490" y2="304" stroke="black" stroke-width="3" />
+    <text x="470" y="299" text-anchor="middle" fill="black">E<tspan dy="-7" font-family="monospace" font-size=".7em">&#8225;</tspan></text>
+    <text x="470" y="319" text-anchor="middle" fill="black"> -8.08 </text>
+    <line x1="410" y1="383" x2="450" y2="304" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="530" y1="379" x2="570" y2="379" stroke="black" stroke-width="3" />
+    <text x="550" y="374" text-anchor="middle" fill="black">F</text>
+    <text x="550" y="394" text-anchor="middle" fill="black"> -19.57 </text>
+    <line x1="490" y1="304" x2="530" y2="379" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="610" y1="137" x2="650" y2="137" stroke="black" stroke-width="3" />
+    <text x="630" y="132" text-anchor="middle" fill="black">G<tspan dy="-7" font-family="monospace" font-size=".7em">&#8225;</tspan></text>
+    <text x="630" y="152" text-anchor="middle" fill="black"> 17.39 </text>
+    <line x1="570" y1="379" x2="610" y2="137" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="690" y1="251" x2="730" y2="251" stroke="black" stroke-width="3" />
+    <text x="710" y="246" text-anchor="middle" fill="black">H</text>
+    <text x="710" y="266" text-anchor="middle" fill="black"> 0.00 </text>
+    <line x1="650" y1="137" x2="690" y2="251" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="770" y1="135" x2="810" y2="135" stroke="black" stroke-width="3" />
+    <text x="790" y="130" text-anchor="middle" fill="black">I<tspan dy="-7" font-family="monospace" font-size=".7em">&#8225;</tspan></text>
+    <text x="790" y="150" text-anchor="middle" fill="black"> 17.70 </text>
+    <line x1="730" y1="251" x2="770" y2="135" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="850" y1="318" x2="890" y2="318" stroke="black" stroke-width="3" />
+    <text x="870" y="313" text-anchor="middle" fill="black">J</text>
+    <text x="870" y="333" text-anchor="middle" fill="black"> -10.25 </text>
+    <line x1="810" y1="135" x2="850" y2="318" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="930" y1="450" x2="970" y2="450" stroke="black" stroke-width="3" />
+    <text x="950" y="445" text-anchor="middle" fill="black">K</text>
+    <text x="950" y="465" text-anchor="middle" fill="black"> -30.44 </text>
+    <line x1="890" y1="318" x2="930" y2="450" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1010" y1="385" x2="1050" y2="385" stroke="black" stroke-width="3" />
+    <text x="1030" y="380" text-anchor="middle" fill="black">L</text>
+    <text x="1030" y="400" text-anchor="middle" fill="black"> -20.50 </text>
+    <line x1="970" y1="450" x2="1010" y2="385" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1090" y1="216" x2="1130" y2="216" stroke="black" stroke-width="3" />
+    <text x="1110" y="211" text-anchor="middle" fill="black">M</text>
+    <text x="1110" y="231" text-anchor="middle" fill="black"> 5.28 </text>
+    <line x1="1050" y1="385" x2="1090" y2="216" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1170" y1="180" x2="1210" y2="180" stroke="black" stroke-width="3" />
+    <text x="1190" y="175" text-anchor="middle" fill="black">N<tspan dy="-7" font-family="monospace" font-size=".7em">&#8225;</tspan></text>
+    <text x="1190" y="195" text-anchor="middle" fill="black"> 10.87 </text>
+    <line x1="1130" y1="216" x2="1170" y2="180" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="1250" y1="259" x2="1290" y2="259" stroke="black" stroke-width="3" />
+    <text x="1270" y="254" text-anchor="middle" fill="black">A'</text>
+    <text x="1270" y="274" text-anchor="middle" fill="black"> -1.24 </text>
+    <line x1="1210" y1="180" x2="1250" y2="259" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <text x="950" y="403" text-anchor="middle" fill="black">TDI</text>
+    <text x="950" y="421" text-anchor="middle" fill="black">&#8595;</text>
+    <text x="230" y="112" text-anchor="middle" fill="black">TDTS</text>
+    <text x="230" y="89" text-anchor="middle" fill="black">&#8593;</text>
+    <text x="120" y="450" text-anchor="left" fill="black">Delta = -9.01</text>
+    <text x="120" y="470" text-anchor="left" fill="black">Span = 52.18</text>
+</svg>
