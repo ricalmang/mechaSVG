@@ -1,5 +1,5 @@
-# Description
-Python application for creating energy profile diagrams as **'.svg'** files with various aesthetic options. Extra analysis for catalytic cycle diagrams include: Finding energy span, Turn Over Frequency (TOF) estimation from both energy span and *catalytic-flux law*, and estimating degree of TOF control of both intermediates and transition states.¹
+# mechaSVG
+mechaSVG is a python application for creating energy profile diagrams as **'.svg'** files with various aesthetic options. Extra analysis for catalytic cycle diagrams include: Finding energy span, Turn Over Frequency (TOF) estimation from both energy span and *catalytic-flux law*, and estimating degree of TOF control of both intermediates and transition states.¹
 
 # Latest updates
 Find energy span of catalytic cycles\
