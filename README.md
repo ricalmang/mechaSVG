@@ -16,9 +16,11 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ### Output graphs
 
+Example 1
 ![Graph 1](/example_1.svg)
 
-![Graph 2](/example_2.svg)
+>Example 2
+>![Graph 2](/example_2.svg)
 
 ## Running
 The program can ben run directly with python 3.5+ without installation.
