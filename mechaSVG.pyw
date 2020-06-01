@@ -721,7 +721,6 @@ class SvgGenEsp:
 		self.msg.append(z.format(min(a[0] for a in self.paths[0]),
 								 max(a[0] for a in self.paths[0]),
 								 "exergonicity" if self.e_source == 3 else "exotermicity"))
-
 		if self.e_source != 3:
 			m = "WARNING: Data above should only be used after carefull consideration."
 			m += "Enthalpy values were employed in place of Gibbs Free energy\n"
@@ -777,7 +776,7 @@ class SvgGenEsp:
 		if delta_e >= 0:
 			self.msg.append("Reaction is {}! Span will not be computed!\n".format("endergonic" if self.e_source == 3 else "endotermic"))
 			self.span_worthy = False; return
-		if not all(a[1] in ["TS","INT"] for a in self.paths[0]):
+		if not all(a[1] in ["TS","INT"] for a in self.paths[0]) and self.span["irrespective"] != 1:
 			txt = "All structures have to be identified as either transition states or intermediates for a strict span analysis."
 			txt += " Irrestrictive analysis may be caried out by checking the 'irrespective of type(TS/INT)' box."
 			txt += " No span analysis will be conducted\n"
