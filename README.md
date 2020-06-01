@@ -34,6 +34,9 @@ python3 ./mechaSVG.pyw
 ```bash
 python ./mechaSVG.pyw
 ```
+Alternatively, a windons 10 executable can be downloaded on the following link:
+[mechaSVG-v002.exe](https://github.com/ricalmang/mechaSVG/releases/download/v0.0.2/mechaSVG-v002.exe)
+
 
 ## References
 
