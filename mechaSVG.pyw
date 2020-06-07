@@ -597,7 +597,6 @@ class SvgGenEsp:
 				path.append([*b,height])
 			self.paths.append(path)
 		return self.paths
-	#TODO
 	@functools.lru_cache(maxsize=1)
 	def graph_frame(self):
 		a = [
