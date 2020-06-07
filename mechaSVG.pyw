@@ -27,7 +27,7 @@ class Preferences:
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
 		self.placement = {"Top"    :[[-37,-22,-7],[-22,-7,0]],
-					 "Midle"  :[[-5,15,30],[-5,15,30]],
+					 "Middle"  :[[-5,15,30],[-5,15,30]],
 					 "Bottom" :[[17,32,47],[17,32,0]]}
 		self.menu_d = list(self.placement.keys())
 		self.menu_e = [a for a in "ABCDEFGH"] #Will change the number of Paths available
