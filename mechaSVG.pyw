@@ -82,7 +82,7 @@ class Note(ttk.Notebook):
 		self.grid_columnconfigure(0, weight=1)
 class TabFramePaths(ttk.Frame):
 	def __init__(self,parent,name,*args,**kwargs):
-		ttk.Frame.__init__(self,parent,height=50,*args,**kwargs)
+		ttk.Frame.__init__(self,parent,*args,**kwargs,height=50)
 		self.parent = parent
 		self.parent.add(self, text=name)
 		#########
