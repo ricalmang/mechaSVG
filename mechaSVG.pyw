@@ -1,5 +1,9 @@
-import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+try:
+	import tkinter as tk
+	from tkinter import ttk, filedialog, messagebox
+except Exception as message:
+	print(message)
+	print("Please make sure you have python3 and tkinter installed")
 import os, random, datetime, functools, math, sys
 
 
