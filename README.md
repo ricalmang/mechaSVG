@@ -3,10 +3,11 @@ mechaSVG is a python application for creating good-looking energy profile diagra
 [Watch on Youtube](https://youtu.be/0FfNRQJCJAs)
 
 ## Latest updates
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)\
 Find energy span of catalytic cycles\
 Find the degree of TOF control for intermediates and transition states for catalytic cycles\
-Calculate TOF as *catalytic-flux law*\
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)
+Calculate TOF as *catalytic-flux law*
+
 
 ## Preview
 
