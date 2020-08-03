@@ -1,12 +1,12 @@
 # mechaSVG
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)
 mechaSVG is a python application for creating good-looking energy profile diagrams as *Scalable Vector Graphics* or **'.svg'** files with various aesthetic options. The produced graphics can also be easily edited afterwards via an svg editor like Inkscape. Extra analysis for catalytic cycle diagrams include: Finding energy span, Turn Over Frequency (TOF) estimation from both energy span and *catalytic-flux law*, and estimating degree of TOF control of both intermediates and transition states.¹\
 [Watch on Youtube](https://youtu.be/0FfNRQJCJAs)
 
 ## Latest updates
 Find energy span of catalytic cycles\
 Find the degree of TOF control for intermediates and transition states for catalytic cycles\
-Calculate TOF as *catalytic-flux law*
+Calculate TOF as *catalytic-flux law*\
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)
 
 ## Preview
 
