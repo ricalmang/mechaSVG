@@ -44,7 +44,7 @@ Alternatively, a windons 10 executable can be downloaded on the following link:
 Data for mechaSVG can be inserted directly onto the user interface or be imported from xlsx and txt files.
 Importing files can be done with the **Open** button on the user interface or by running the following command:
  ```bash
-python3 /path/to/file/mechasvg.py /path/to/file/example.txt
+python3 -m mechasvg /path/to/file/example.txt
 ```
 ###.txt files
 Data for .txt imports should be writen in a plain text file like in the following example:
