@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="mechasvg",
+    name="mechaSVG",
     version="0.0.4",
     author="Ricardo Almir Angnes",
     author_email="ricardo_almir@hotmail.com",
