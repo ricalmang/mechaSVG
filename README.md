@@ -13,15 +13,15 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ### Graphical interface
 
-![Interface](supl/image.png)
+![Interface](mechasvg/supl/image.png)
 
 ### Output graphs
 
 #### Example 1
-![Graph 1](supl/example_1.svg)
+![Graph 1](mechasvg/supl/example_1.svg)
 
 #### Example 2
-![Graph 2](supl/example_2.svg)
+![Graph 2](mechasvg/supl/example_2.svg)
 
 These svg graphs can be easily post edited to fit your needs using freely available svg editors like [Inkscape](https://inkscape.org/).
 
@@ -81,7 +81,7 @@ Data for .xlsx imports should be writen starting at to left and top right cells 
 
  |       .xlsx              |  mechaSVG |
 | :-------------------------: | :-------------------------:|
-| ![.xlsx](supl/xlsx.gif)  | ![mechaSVG](supl/mechasvg.gif) |
+| ![.xlsx](mechasvg/supl/xlsx.gif)  | ![mechaSVG](mechasvg/supl/mechasvg.gif) |
 
 .xlsx files can be generated using [LibreOffice Calc](https://www.libreoffice.org/) or Microsoft Excel.  
 
