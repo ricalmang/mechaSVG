@@ -1,11 +1,13 @@
+import os, random, datetime, functools, math, sys
 try:
 	import tkinter as tk
 	from tkinter import ttk, filedialog, messagebox
-except Exception as message:
+except ImportError as message:
 	print(message)
-	print("Please make sure you have python3 and tkinter installed")
-import os, random, datetime, functools, math, sys
-
+	print()
+	print("Please make sure you have python3, tkinter and ttk installed")
+	input("Press enter to leave")
+	exit()
 
 
 class Preferences:
@@ -26,30 +28,49 @@ class Preferences:
 		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"'}
 		# Random catalytic cycle generator
 		self.trickster = True # Include random catalytic cycle generator?
-		self.name = "MechaSVG v 0.0.0"
+		self.name = "MechaSVG v 0.0.4"
 		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
-		self.placement = {"Top"    :[[-37,-22,-7],[-22,-7,0]],
-					 "Middle"  :[[-5,15,30],[-5,15,30]],
-					 "Bottom" :[[17,32,47],[17,32,0]]}
+
+		self.placement = {
+			"Top":[[-37,-22,-7],[-22,-7,0]],
+			 "Middle"  :[[-5,15,30],[-5,15,30]],
+			 "Bottom" :[[17,32,47],[17,32,0]]
+			}
+		self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 		self.menu_d = list(self.placement.keys())
-		self.menu_e = [a for a in "ABCDEFGH"] #Will change the number of Paths available
+		self.menu_e = [self.alphabet[n] for n in range(8)] #Will change the number of Paths available
 		self.menu_f = ["opt_{}".format(a.lower()) for a in self.menu_e]
 		self.menu_g = ["tab_{}".format(a.lower()) for a in self.menu_e]
 		self.menu_h = ["Path {}".format(a) for a in self.menu_e]
 		self.menu_i = ["#{}".format(a) for a in self.menu_e]
 		self.menu_z = [" ","TS","INT"]
+		try:
+			import openpyxl
+			self.xlsx = True
+		except ImportError:
+			self.xlsx = False
+		if self.xlsx:
+			self.allowed_extensions = {
+				"title": "Save state",
+				"defaultextension": ".xlsx",
+				"filetypes": [("Spreadsheet", ".xlsx"), ("Saved State File", ".ssf"),  ("Text file", ".txt")]}
+		else:
+			self.allowed_extensions = {
+				"title": "Save state",
+				"defaultextension": ".ssf",
+				"filetypes": [("Saved State File", ".ssf"), ("Text file", ".txt")]}
 		filename = sys.argv[-1]
-		if os.path.isfile(filename) and filename.endswith(".ssf"):
+		ext = [".xlsx",".ssf",".txt"] if self.xlsx else [".ssf",".txt"]
+		if os.path.isfile(filename) and any(filename.endswith(a) for a in ext):
 			self.filename = filename
-
-
 class State:
 	def __init__(self, text):
 		self.list = [a.split("/|") for a in text]
 		for a,b in zip(pref.menu_f,pref.menu_g): setattr(self,a,[]);setattr(self,b,[])
 		self.con = []
+		self.message = []
 		tab, opt, con = [], [], []
 		for i,a in enumerate(self.list):
 			if len(a) == 5:	tab.append(a)
@@ -57,17 +78,17 @@ class State:
 			elif len(a) == 1:
 				if a[0] == "#CON":
 					if len(con) > pref.n_connectors:
-						print("Exceeding number of conectors")
+						self.message.append("Exceeding number of conectors")
 					self.con = con[:min(len(con),pref.n_connectors)]
 					break
 				if not a[0] in ["#{}".format(n) for n in pref.menu_e]:
-					if a[0] in ["#{}".format(n) for n in "ABCDEFGHIJKLMNOPQRSTUVXYZ"]:
-						print("Exceeding number of paths")
+					if a[0] in ["#{}".format(n) for n in pref.alphabet]:
+						self.message.append("Exceeding number of paths")
 					continue
 				for b,c,d in zip(pref.menu_i,pref.menu_g,pref.menu_f):
 					if a[0] == b:
 						if len(tab) > pref.n_structures:
-							print("Exceding number of structures")
+							self.message.append("Exceding number of structures")
 						setattr(self,c,tab[:min(len(tab),pref.n_structures)])
 						setattr(self,d,opt)
 						tab, opt = [],[]
@@ -84,6 +105,7 @@ class Note(ttk.Notebook):
 		self.tab_connections = TabFrameConnections(self,name="Connections")
 		self.grid(column=0,row=0,sticky='news')
 		self.grid_columnconfigure(0, weight=1)
+
 class TabFramePaths(ttk.Frame):
 	def __init__(self,parent,name,*args,**kwargs):
 		ttk.Frame.__init__(self,parent,*args,**kwargs,height=50)
@@ -205,7 +227,6 @@ class GeneralMenu(tk.LabelFrame):
 		if hasattr(pref,"filename"):
 			self.f = pref.filename
 			self.load_state(getattr(pref,"filename"))
-
 	def _build_all(self):
 		self.note = ttk.Notebook(self.boxify("Advanced options", 2))
 		self.note.grid(column=0, row=0, sticky="news")
@@ -254,8 +275,6 @@ class GeneralMenu(tk.LabelFrame):
 		self.span.append(tk.Entry(box, justify=tk.CENTER, bd=3, width=6))
 		self.span[-1].insert(0, "25")
 		self.span[-1].grid(column=4, row=1, padx="3",pady="4", sticky="news")
-
-
 	def _build_aesthetics(self):
 		box = self.framefy("Aesthetics")
 		a = ["   ", "( )", "[ ]", r"{ }", '" "', "' '"]
@@ -333,7 +352,6 @@ class GeneralMenu(tk.LabelFrame):
 		button.config(width=8)
 		button.grid(column=3,row=0,sticky="e")
 		box.grid_columnconfigure(0, weight=1)
-
 	def _build_message(self,idx):
 		box = self.boxify("Message",idx)
 		m = tk.Message(box)
@@ -342,32 +360,143 @@ class GeneralMenu(tk.LabelFrame):
 		self.msg = tk.Text(box,width=40,yscrollcommand=scrollbar.set,height=12 if pref.trickster else 18,state="disabled",background=m.cget("background"),relief="flat",wrap=tk.WORD,font=("Helvetica", 8))
 		m.destroy()
 		self.msg.grid(column=0,row=0,sticky="news")
-		self.message("Welcome!")
+		if not pref.xlsx:
+			self.message("Welcome!\n\nTo enable .xlsx file support, please install openpyxl python library via the shell command:\npython3 -m pip install openpyxl")
+		else:
+			self.message("Welcome!")
 		box.grid_rowconfigure(0, weight=1)
-		box.grid_rowconfigure(0, weight=1)
-		box.grid_columnconfigure(0, weight=1)
 		box.grid_columnconfigure(0, weight=1)
 		self.grid_rowconfigure(idx, weight=1)
-	def _save(self):
-		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
+	def _save(self,ignore=False):
+		#TODO
 		try:
-			with open(self.f,"w") as out: out.write(txt)
+			if self.f.endswith(".xlsx") and pref.xlsx:
+				from openpyxl import Workbook
+				wb = Workbook()
+				wb.remove(wb.active)
+				for a,b in zip(self.gen_data(type=".xlsx"),pref.menu_e):
+					sheet = wb.create_sheet(title=f'Path {b}')
+					for i,c in enumerate(a,start=1):
+						sheet.append(c[1:4])
+				try:
+					wb.save(self.f)
+				except PermissionError:
+					self.message(f"Error while saving file!\nIs the file:\n'{self.f}' already open?")
+			else:
+				try:
+					with open(self.f,"w") as out:
+						if self.f.endswith(".ssf"):
+							txt = "".join(a + "/$" + "\n" for a in self.gen_data())
+							out.write(txt)
+						elif self.f.endswith(".txt"):
+							txt = "\n".join(a for a in self.gen_data(type=".txt") if len(a.split()) >= 1)
+							out.write(txt)
+				except PermissionError:
+					self.message(f"Error while saving file!\nIs the file:\n'{self.f}' already open?")
 		except AttributeError: self._save_as()
 		except FileNotFoundError: self._save_as()
 	def _save_as(self):
-		txt = "".join(a + "/$" + "\n" for a in self.gen_data())
-		self.f = tk.filedialog.asksaveasfilename(defaultextension=".ssf",title="Save state",filetypes = [("Saved State File", ".ssf")])
+		self.f = tk.filedialog.asksaveasfilename(**pref.allowed_extensions)
 		self._change_win_title(self.f)
+		if any(self.f.endswith(a) for a in (".sff",".txt",".xlsx")):self._save()
+
+	def load_state(self,file_n=None):
+		if file_n is None:
+			file_n = tk.filedialog.askopenfilename(**pref.allowed_extensions)
 		try:
-			with open(self.f,"w") as out: out.write(txt)
-		except FileNotFoundError: pass
+			if file_n.endswith(".xlsx") and pref.xlsx:
+				self._blank_state(ask=False)
+				import openpyxl
+				try:
+					wb = openpyxl.load_workbook(file_n)
+				except:
+					self.message(f"Could not read {file_n} as xlsx file!\nAre you sure this is a proper xlsx file?")
+					return
+				notes = [getattr(note, a) for a in pref.menu_g]
+				exceeded = False
+				for a,b in zip(wb.sheetnames, notes):
+					sheet = wb[a]
+					for n in range(1,pref.n_structures+10):
+						if n > pref.n_structures:
+							if any(sheet.cell(row=n,column=i).value is None for i in range(1,4)):
+								exceeded = True
+							continue
+						for i in range(1,4):
+							if sheet.cell(row=n,column=i).value is None: continue
+							b.data[n-1][i].insert(0,str(sheet.cell(row=n,column=i).value))
+				if exceeded:
+					self.message("Exceeding number of structures")
+			else:
+				with open(file_n, mode="r") as file:
+					if file_n.endswith(".ssf"):
+						self._blank_state(ask=False)
+						state = "".join(file.read().splitlines()).split("/$")
+						try:
+							state = State(state)
+							notes = [getattr(note, a) for a in pref.menu_g]
+							dat_states = [getattr(state, a) for a in pref.menu_g]
+							opt_states = [getattr(state, a) for a in pref.menu_f]
+							for a, b, c in zip(notes, dat_states, opt_states):
+								for n in range(3):
+									for d in range(2):
+										a.option_menu.line_opt_data[d][n].set(c[d][n])
+								for i, line in enumerate(b):
+									for n in range(3):
+										a.data[i][n + 1].delete(0, tk.END)
+										a.data[i][n + 1].insert(0, line[n + 1])
+									a.data[i][0].set(line[0])
+									a.data[i][4].set(line[4])
+							for i, line in enumerate(state.con):
+								for n in range(7):
+									note.tab_connections.data[i][n].set(line[n])
+							if state.message:
+								self.message("\n".join(state.message))
+						except IndexError:
+							pass
+
+					elif file_n.endswith(".txt"):
+						self._blank_state(ask=False)
+						all_tabs = {}
+						tab_data = []
+						for line in file.read().splitlines():
+							line = line.split()
+							non_hash = True if len(line) == 1 and not line[0].startswith("#") else False
+							if len(line) >= 2 or non_hash:
+								tab_data.append(line)
+							elif len(line) == 1 and any(line[0] == f"#{a}" for a in pref.menu_e):
+								all_tabs[line[0]] = tab_data
+								tab_data = []
+						if len(all_tabs) == 0 and len(tab_data) != 0:
+							all_tabs["#A"] = tab_data
+						missing = [b for b in [f"#{a}" for a in pref.menu_e] if b not in all_tabs.keys()]
+						for a in missing: all_tabs[a] = []
+						notes = [getattr(note, a) for a in pref.menu_g]
+						exceeded = False
+						for a,b in zip(notes,sorted(all_tabs.keys())):
+							for i,c in enumerate(all_tabs[b]):
+								if i >= pref.n_structures:
+									exceeded = True
+									continue
+								for n in range(3):
+									try: a.data[i][n+1].insert(0,c[n])
+									except IndexError: pass
+						if exceeded:
+							self.message("Exceeding number of structures")
+					else:
+						return
+		except FileNotFoundError:
+			self.message("File not found!")
+			return
+		finally:
+			self._change_win_title(file_n)
+			self.f = file_n
+
 	def fill_in(self):
-		names = "ABCDEFGHIJKLMNOPQRSTUVXYZ"
 		size = random.random()
-		max_value = min(len(names), pref.n_structures)
+		max_value = min(len(pref.alphabet), pref.n_structures)
 		lenght = random.randint(1,max_value)
 		tab = getattr(note,[a for a in pref.menu_g][note.index(note.select())])
-		for i,n in zip(range(max_value),names):
+		for i,n in zip(range(max_value),pref.alphabet):
 			value = size*random.randrange(-100,100)
 			for idx in range(len(tab.data[i])):
 				if idx == 1:
@@ -403,19 +532,20 @@ class GeneralMenu(tk.LabelFrame):
 			self.message("Cannot fill in data for connection tab!\n")
 			return
 		msgbox = tk.messagebox.askquestion(
-			'Fill in random catalytic cycle at {}'.format(pref.menu_h[note.index(note.select())]),
+			f'Fill in random catalytic cycle at {pref.menu_h[note.index(note.select())]}',
 			'Are you sure? All unsaved data will be lost!', icon='warning')
 		if msgbox == "yes":
 			self.fill_in()
 			self._change_win_title("Unsaved")
 			if hasattr(self,"f"): del(self.f)
 	def _change_win_title(self,path):
-		window.title("{} @ {}".format(pref.name,path))
-	def _blank_state(self):
-		msgbox = tk.messagebox.askquestion('Close document', 'Are you sure? All unsaved data will be lost!', icon='warning')
-		if msgbox != "yes":return
-		self._change_win_title("Unsaved")
-		if hasattr(self,"f"): del(self.f)
+		window.title(f"{pref.name} @ {path}")
+	def _blank_state(self,ask=True):
+		if ask:
+			msgbox = tk.messagebox.askquestion('Close document', 'Are you sure? All unsaved data will be lost!', icon='warning')
+			if msgbox != "yes":return
+			self._change_win_title("Unsaved")
+			if hasattr(self,"f"): del(self.f)
 		for a in [getattr(note,a) for a in pref.menu_g]:
 			for i in range(pref.n_structures):
 				for idx in range(5):
@@ -455,64 +585,43 @@ class GeneralMenu(tk.LabelFrame):
 	def print_data(self):
 		notes = [getattr(note,a) for a in pref.menu_g]
 		for a,b in zip(notes,pref.menu_e):
-			print("NOTE {}".format(b))
+			print(f"NOTE {b}")
 			for idx,line in enumerate(getattr(a,"data")):
 				if any(c.get().strip() != "" for c in line[:-1]):
-					print("#{}".format(idx+1),[n.get() for n in line])
+					print(f"#{idx+1}",[n.get() for n in line])
 		print("NOTE CONNECTIONS")
 		for idx,a in enumerate(note.tab_connections.data):
 			if any(c.get().strip() != "" for c in a[:-3]):
-				print("#{}".format(idx + 1), [n.get() for n in a])
-	def gen_data(self):
+				print(f"#{idx+1}", [n.get() for n in a])
+	def gen_data(self,type=".ssf"):
 		notes = [getattr(note,a) for a in pref.menu_g]
-		raw_data = []
+		ssf_data = []
+		txt_data = []
+		xlsx_data = []
 		for a,b in zip(notes,pref.menu_e):
+			xlsx = []
 			for idx,line in enumerate(getattr(a,"data")):
 				c = [n.get() for n in line]
 				assert all("/|" not in d for d in c), self.message("'/|' is not allowed in names or energy values")
 				assert all("/$" not in d for d in c), self.message("'/$' is not allowed in names or energy values")
-				raw_data.append("/|".join(c))
-			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[0]]))
-			raw_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[1]]))
-			raw_data.append("#{}".format(b))
+				ssf_data.append("/|".join(c))
+				txt_data.append("{:<20} {:>10} {:>10}".format(*c[1:4]))
+				xlsx.append(c)
+			ssf_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[0]]))
+			ssf_data.append("/|".join([d.get() for d in a.option_menu.line_opt_data[1]]))
+			ssf_data.append("#{}".format(b))
+			txt_data.append("#{}".format(b))
+			xlsx_data.append(xlsx)
 		for idx,a in enumerate(note.tab_connections.data):
-				raw_data.append("/|".join([n.get() for n in a]))
-		raw_data.append("#CON")
-		return raw_data
-	def load_state(self,file_n=None):
-		if file_n is None:
-			file_n = tk.filedialog.askopenfilename(title="Read state",defaultextension=".ssf",filetypes = [("Saved State File", ".ssf")])
-			if file_n == "": return
-			state = None
+			ssf_data.append("/|".join([n.get() for n in a]))
+		ssf_data.append("#CON")
+		if type == ".ssf":
+			return ssf_data
+		elif type == ".txt":
+			return txt_data
+		elif type == ".xlsx":
+			return xlsx_data
 
-		try:
-			if file_n == "": return
-			with open(file_n,mode="r") as file:
-				state = "".join(file.read().splitlines()).split("/$")
-			self._change_win_title(file_n)
-			self.f = file_n
-		except FileNotFoundError:
-			return
-		try:
-			state = State(state)
-			notes = [getattr(note,a) for a in pref.menu_g]
-			dat_states = [getattr(state,a) for a in pref.menu_g]
-			opt_states = [getattr(state,a) for a in pref.menu_f]
-			for a,b,c in zip(notes,dat_states,opt_states):
-				for n in range(3):
-					for d in range(2):
-						a.option_menu.line_opt_data[d][n].set(c[d][n])
-				for i,line in enumerate(b):
-					for n in range(3):
-						a.data[i][n+1].delete(0,tk.END)
-						a.data[i][n+1].insert(0,line[n+1])
-					a.data[i][0].set(line[0])
-					a.data[i][4].set(line[4])
-			for i,line in enumerate(state.con):
-				for n in range(7):
-					note.tab_connections.data[i][n].set(line[n])
-		except IndexError:
-			pass
 	def save_svg_as(self):
 		return tk.filedialog.asksaveasfilename(defaultextension=".svg", title="Save svg", filetypes=[("Scalable Vector Graphics", ".svg")])
 	def run_data_a(self):
@@ -531,6 +640,7 @@ class GeneralMenu(tk.LabelFrame):
 		}
 		msg = SvgGenEsp(**kwargs).save_svg(svg_name)
 		if not msg is None: self.message(msg)
+
 class SvgGenEsp:
 	def __init__(self,state,include,title,main,aesthetics,span):
 		self.span_worthy = True
@@ -898,7 +1008,7 @@ class SvgGenEsp:
 			pass
 
 def initialize():
-	global pref, note, window
+	global pref, note, window, frame2
 	pref = Preferences()
 	window = tk.Tk()
 	#NOTEBOOK
