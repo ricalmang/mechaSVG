@@ -26,6 +26,7 @@ The following pictures ilustrate the usage of the graphical user interface and t
 ![Graph 2](mechasvg/supl/example_2.svg)
 
 These svg graphs can be easily post-edited to fit your needs using freely available svg editors like [Inkscape](https://inkscape.org/).
+Moreover, **Inkscape** can save them in many different image formats including **".emf"**, which in turn can be imported into some of the most popular chemical structure drawing softwares with **no noticeable loss in image quality**. 
 
 ## Installing & Running
 
