@@ -5,7 +5,7 @@ mechaSVG is a python & tk application for creating good-looking energy profile d
 
 ## Latest updates
 
-Support for ".xlsx" and ".txt" imports and exports added. Please refer to section "**Importing .txt and .xlsx**" for information about importing these file types.
+Support for ".txt" and ".xlsx" imports and exports added. Please refer to section "**Importing .txt and .xlsx**" for information about importing these file types.
 
 ## Preview
 
