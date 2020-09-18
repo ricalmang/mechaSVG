@@ -25,7 +25,7 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ![Graph 2](mechasvg/supl/example_2.svg)
 
-These svg graphs can be easily post edited to fit your needs using freely available svg editors like [Inkscape](https://inkscape.org/).
+These svg graphs can be easily post-edited to fit your needs using freely available svg editors like [Inkscape](https://inkscape.org/).
 
 ## Installing & Running
 
@@ -83,7 +83,7 @@ Please note that only the following tab flags area available:
 
 ### .xlsx files
 
-Data for .xlsx imports should be writen starting at to left and top right cells (i.e. A1 cell). Every sheet will be consecutively atributed to a reaction path tab on mechaSVG.
+Data for .xlsx imports should be writen starting at the top left cell (i.e. A1 cell). Every sheet will be consecutively atributed to a reaction path tab on mechaSVG.
 
  |       .xlsx              |  mechaSVG |
 | :-------------------------: | :-------------------------:|
