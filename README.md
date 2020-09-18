@@ -50,7 +50,7 @@ Importing files can be done with the **Open** button on the user interface or by
  ```bash
 python3 -m mechasvg /path/to/file/example.txt
 ```
-###.txt files
+### .txt files
 
 Data for .txt imports should be writen in a plain text file like in the following example:
 ```bash
@@ -81,7 +81,7 @@ Path_B_Structure_B Free_energy
 Please note that only the following tab flags area available:
 \#A, #B, #C, #D, #E, #F, #G and #H
 
-###.xlsx files
+### .xlsx files
 
 Data for .xlsx imports should be writen starting at to left and top right cells (i.e. A1 cell). Every sheet will be consecutively atributed to a reaction path tab on mechaSVG.
 
