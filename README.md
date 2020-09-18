@@ -102,7 +102,7 @@ Angnes, R. A. mechaSVG, GitHub repository, 2020, doi: 10.5281/zenodo.3970267.
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)
 
-##Acknowledgments
+## Acknowledgments
 
 This project was funded by São Paulo Research Foundation (FAPESP) under grant 2019/02052-4.
 
