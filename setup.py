@@ -1,13 +1,13 @@
 import setuptools
-from pkg_resources import resource_string
-
+with open("mechasvg\\supl\\README.txt", "r") as fh:
+    long_description = fh.read()
 setuptools.setup(
     name="mechaSVG",
     version="0.0.8",
     author="Ricardo Almir Angnes",
     author_email="ricardo_almir@hotmail.com",
     description="mechaSVG is a python & tk application for creating good-looking energy profile diagrams as Scalable Vector Graphics.",
-    long_description=resource_string(__name__,"mechasvg\supl\README.txt"),
+    long_description=long_description,
 	license="MIT",
     url="https://github.com/ricalmang/mechaSVG",
 	keywords = ['chemistry'],
