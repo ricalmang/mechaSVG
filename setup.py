@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="mechaSVG",
-    version="0.0.7",
+    version="0.0.8",
     author="Ricardo Almir Angnes",
     author_email="ricardo_almir@hotmail.com",
     description="mechaSVG is a python & tk application for creating good-looking energy profile diagrams as Scalable Vector Graphics.",

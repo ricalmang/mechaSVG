@@ -40,20 +40,21 @@ Moreover, **Inkscape** can save them in many different image formats including *
 
 The recommended installaion requires python 3.6 or above.
 
-Installation can be done via:
+Fresh instalation can be done via:
 ```bash
 python3 -m pip install mechasvg
-```
-The program can be run via:
-```bash
-python3 -m mechasvg
 ```
 Upgrading from older versions can be done via:
 ```bash
 python3 -m pip install -U mechasvg
 ```
+The program can be run via:
+```bash
+python3 -m mechasvg
+```
+
 Alternatively, a windons 10 executable can be downloaded on the following link:
-[mechaSVG-v007.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.7/mechaSVG-v007.exe)
+[mechaSVG-v008.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.8/mechaSVG-v008.exe)
 
 ## Importing .txt and .xlsx
 
