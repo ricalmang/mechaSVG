@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<svg width="785" viewBox="30 0 785 500" height="500" xmlns="http://www.w3.org/2000/svg">
+    <line x1="100" y1="35" x2="100" y2="475" stroke="black" stroke-width="2"/>
+    <text x="447" y="20" font-size="22" text-anchor="middle" fill="black">Curtin&#8211;Hammett principle</text>
+    <text x="-250" y="55" font-size="22" transform="rotate(-90)" text-anchor="middle" fill="black">&#916;G in kcal&#183;mol&#8315;&#185;</text>
+    <text x="447" y="495" font-size="22" text-anchor="middle" fill="black">Reaction coordinate</text>
+    <polygon points="100,25 95,35 105,35" style="fill:black;stroke:black;stroke-width:1"/>
+    <polygon points="775,475 765,470 765,480" style="fill:black;stroke:black;stroke-width:1"/>
+    <polygon points="100,485 95,475 105,475" style="fill:black;stroke:black;stroke-width:1"/>
+    <line x1="150" y1="475" x2="765" y2="475" stroke="black" stroke-width="2"/>
+    <polygon points="140,475 150,470 150,480" style="fill:black;stroke:black;stroke-width:1"/>
+    <line x1="100" y1="58" x2="105" y2="58" stroke="black" stroke-width="2"/>
+    <text x="80" y="58" text-anchor="middle" fill="black">28.0</text>
+    <line x1="100" y1="94" x2="105" y2="94" stroke="black" stroke-width="2"/>
+    <text x="80" y="94" text-anchor="middle" fill="black">24.0</text>
+    <line x1="100" y1="129" x2="105" y2="129" stroke="black" stroke-width="2"/>
+    <text x="80" y="129" text-anchor="middle" fill="black">20.0</text>
+    <line x1="100" y1="165" x2="105" y2="165" stroke="black" stroke-width="2"/>
+    <text x="80" y="165" text-anchor="middle" fill="black">16.0</text>
+    <line x1="100" y1="200" x2="105" y2="200" stroke="black" stroke-width="2"/>
+    <text x="80" y="200" text-anchor="middle" fill="black">12.0</text>
+    <line x1="100" y1="236" x2="105" y2="236" stroke="black" stroke-width="2"/>
+    <text x="80" y="236" text-anchor="middle" fill="black">8.0</text>
+    <line x1="100" y1="271" x2="105" y2="271" stroke="black" stroke-width="2"/>
+    <text x="80" y="271" text-anchor="middle" fill="black">4.0</text>
+    <line x1="100" y1="307" x2="105" y2="307" stroke="black" stroke-width="2"/>
+    <text x="80" y="307" text-anchor="middle" fill="black">0.0</text>
+    <line x1="100" y1="342" x2="105" y2="342" stroke="black" stroke-width="2"/>
+    <text x="80" y="342" text-anchor="middle" fill="black">-4.0</text>
+    <line x1="100" y1="378" x2="105" y2="378" stroke="black" stroke-width="2"/>
+    <text x="80" y="378" text-anchor="middle" fill="black">-8.0</text>
+    <line x1="100" y1="414" x2="105" y2="414" stroke="black" stroke-width="2"/>
+    <text x="80" y="414" text-anchor="middle" fill="black">-12.0</text>
+    <line x1="100" y1="449" x2="105" y2="449" stroke="black" stroke-width="2"/>
+    <text x="80" y="449" text-anchor="middle" fill="black">-16.0</text>
+    <line x1="190" y1="354" x2="230" y2="354" stroke="black" stroke-width="3" />
+    <text x="210" y="349" text-anchor="middle" fill="black">C</text>
+    <text x="210" y="369" text-anchor="middle" fill="black"> -5.2 </text>
+    <line x1="275" y1="101" x2="315" y2="101" stroke="black" stroke-width="3" />
+    <text x="295" y="96" text-anchor="middle" fill="black">TS(AC)</text>
+    <text x="295" y="116" text-anchor="middle" fill="black"> 23.2 </text>
+    <line x1="230" y1="354" x2="275" y2="101" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="360" y1="276" x2="400" y2="276" stroke="black" stroke-width="3" />
+    <text x="380" y="271" text-anchor="middle" fill="black">A</text>
+    <text x="380" y="291" text-anchor="middle" fill="black"> 3.5 </text>
+    <line x1="315" y1="101" x2="360" y2="276" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="445" y1="234" x2="485" y2="234" stroke="black" stroke-width="3" />
+    <text x="465" y="229" text-anchor="middle" fill="black">TS(AB)</text>
+    <text x="465" y="249" text-anchor="middle" fill="black"> 8.2 </text>
+    <line x1="400" y1="276" x2="445" y2="234" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="530" y1="307" x2="570" y2="307" stroke="black" stroke-width="3" />
+    <text x="550" y="302" text-anchor="middle" fill="black">B</text>
+    <text x="550" y="322" text-anchor="middle" fill="black"> 0.0 </text>
+    <line x1="485" y1="234" x2="530" y2="307" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="615" y1="70" x2="655" y2="70" stroke="black" stroke-width="3" />
+    <text x="635" y="65" text-anchor="middle" fill="black">TS(BD)</text>
+    <text x="635" y="85" text-anchor="middle" fill="black"> 26.7 </text>
+    <line x1="570" y1="307" x2="615" y2="70" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="700" y1="430" x2="740" y2="430" stroke="black" stroke-width="3" />
+    <text x="720" y="425" text-anchor="middle" fill="black">D</text>
+    <text x="720" y="445" text-anchor="middle" fill="black"> -13.8 </text>
+    <line x1="655" y1="70" x2="700" y2="430" stroke="black" stroke-width="2" stroke-dasharray="6,6"/>
+    <line x1="315" y1="101" x2="685" y2="101" stroke="blue" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="675" y1="93" x2="675" y2="78" stroke="blue" stroke-width="1.5" />
+    <polygon points="675,99 671,93 679,93" style="fill:blue;stroke:blue;stroke-width:1"/>
+    <polygon points="675,72 671,78 679,78" style="fill:blue;stroke:blue;stroke-width:1"/>
+    <text x="680" y="85" font-size="16" transform="rotate(90,680,85)" text-anchor="middle" fill="blue">3.5</text>
+    <line x1="685" y1="70" x2="655" y2="70" stroke="blue" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="360" y1="276" x2="285" y2="276" stroke="green" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="295" y1="284" x2="295" y2="346" stroke="green" stroke-width="1.5" />
+    <polygon points="295,278 291,284 299,284" style="fill:green;stroke:green;stroke-width:1"/>
+    <polygon points="295,352 291,346 299,346" style="fill:green;stroke:green;stroke-width:1"/>
+    <text x="290" y="315" font-size="16" transform="rotate(-90,290,315)" text-anchor="middle" fill="green">8.7</text>
+    <line x1="305" y1="354" x2="230" y2="354" stroke="green" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="570" y1="307" x2="645" y2="307" stroke="green" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="635" y1="315" x2="635" y2="422" stroke="green" stroke-width="1.5" />
+    <polygon points="635,309 631,315 639,315" style="fill:green;stroke:green;stroke-width:1"/>
+    <polygon points="635,428 631,422 639,422" style="fill:green;stroke:green;stroke-width:1"/>
+    <text x="630" y="368" font-size="16" transform="rotate(-90,630,368)" text-anchor="middle" fill="green">13.8</text>
+    <line x1="625" y1="430" x2="700" y2="430" stroke="green" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="400" y1="276" x2="475" y2="276" stroke="red" stroke-width="1.5" stroke-dasharray="2,2"/>
+    <line x1="465" y1="284" x2="465" y2="299" stroke="red" stroke-width="1.5" />
+    <polygon points="465,278 461,284 469,284" style="fill:red;stroke:red;stroke-width:1"/>
+    <polygon points="465,305 461,299 469,299" style="fill:red;stroke:red;stroke-width:1"/>
+    <text x="460" y="291" font-size="16" transform="rotate(-90,460,291)" text-anchor="middle" fill="red">3.5</text>
+    <line x1="455" y1="307" x2="530" y2="307" stroke="red" stroke-width="1.5" stroke-dasharray="2,2"/>
+</svg>

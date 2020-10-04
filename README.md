@@ -5,8 +5,11 @@ mechaSVG is a python & tk application for creating good-looking energy profile d
 ![GitHub All Releases](https://img.shields.io/github/downloads/ricalmang/mechasvg/total?color=lgreen&label=GitHub%20downloads) ![PyPI - Downloads](https://img.shields.io/pypi/dw/mechasvg?color=lgreen&label=PyPI%20downloads)
 
 ## Latest updates
-
-Support for ".txt" and ".xlsx" imports and exports added. Please refer to section "**Importing .txt and .xlsx**" for information about importing these file types.
+–Various graph styles and personalization options added.\
+–Make energy comparisons betwen structures.\
+–Plot up to 30 structures 2D PES (Potential Energy Surface).\
+–Slight modifications to the user interface.\
+–Support for ".txt" and ".xlsx" imports and exports added. Please refer to section "**Importing .txt and .xlsx**" for information about importing these file types.
 
 ## Preview
 
@@ -26,6 +29,10 @@ The following pictures ilustrate the usage of the graphical user interface and t
 
 ![Graph 2](mechasvg/supl/example_2.svg)
 
+#### Example 3
+
+![Graph 2](mechasvg/supl/example_3.svg)
+
 These svg graphs can be easily post-edited to fit your needs using freely available svg editors like [Inkscape](https://inkscape.org/).
 Moreover, **Inkscape** can save them in many different image formats including **".emf"**, which in turn can be imported into some of the most popular chemical structure drawing softwares with **minimal loss in image quality**. 
 
@@ -43,7 +50,7 @@ python3 -m mechasvg
 ```
 
 Alternatively, a windons 10 executable can be downloaded on the following link:
-[mechaSVG-v004.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.5/mechaSVG-v005.exe)
+[mechaSVG-v006.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.5/mechaSVG-v005.exe)
 
 ## Importing .txt and .xlsx
 
