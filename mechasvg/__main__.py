@@ -306,6 +306,7 @@ class GeneralMenu(tk.LabelFrame):
 		self._buid_vertical_sel()
 		self._buid_labels_sel()
 		self._build_plot_sel()
+
 		self._build_titles(6)
 		self._build_loadsave(7)
 		if pref.trickster: self._build_generator(8)
@@ -889,7 +890,7 @@ class SvgGenEsp:
 		return self.max_value()-self.min_value()
 	@functools.lru_cache(maxsize=1)
 	def n_col(self):
-		try: x = max(max(a[0] for a in path) for path in self.raw_crt if path)
+		try: x = max(max(a[0] for a in path) for path in list(self.plot_dict.values()) if path)
 		except ValueError: x = 0
 		return x
 	@functools.lru_cache(maxsize=1)
