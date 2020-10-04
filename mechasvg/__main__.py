@@ -857,6 +857,7 @@ class SvgGenEsp:
 		fa = lambda idx,c: float(c.get()) if idx == self.e_source-1 else  c.get()
 		fb = lambda b: is_str_float(b[self.e_source-1].get())
 		self.raw_crt = [[[i+1,*[fa(idx,c) for idx,c in enumerate(b)]] for i,b in dt(a) if fb(b)] for a in pref.menu_g]
+		self.raw_crt_dict = {a: b for a, b in zip(pref.menu_e, self.raw_crt) if self.plot_path[a] and b}
 		self.paths = self.set_height()
 		self.data_dict = {a: b for a, b in zip(pref.menu_e, self.paths)}
 		self.plot_dict = {a:b for a,b in self.data_dict.items() if self.plot_path[a] and b}
@@ -881,10 +882,10 @@ class SvgGenEsp:
 		return str(item).replace(".", ",") if self.comma else str(item).replace(",", ".")
 	@functools.lru_cache(maxsize=1)
 	def max_value(self):
-		return max(max(a[self.e_source] for a in path) for path in self.raw_crt if path)
+		return max(max(a[self.e_source] for a in path) for path in list(self.raw_crt_dict.values()) if path)
 	@functools.lru_cache(maxsize=1)
 	def min_value(self):
-		return min(min(a[self.e_source] for a in path) for path in self.raw_crt if path)
+		return min(min(a[self.e_source] for a in path) for path in list(self.raw_crt_dict.values()) if path)
 	@functools.lru_cache(maxsize=1)
 	def delta_value(self):
 		return self.max_value()-self.min_value()
@@ -1028,13 +1029,10 @@ class SvgGenEsp:
 				z = pref.placement[item[-2]][0 if self.plot_np else 1]
 				trick_g = "g" if self.e_source == 3 else "h"
 				trick_h = "h" if self.e_source == 3 else "g"
-				digit_rounding = {
-								"0": "{:.0f}".format(item[self.e_source]),
-								"1": "{:.1f}".format(item[self.e_source]),
-								"2": "{:.2f}".format(item[self.e_source])
-				}[self.e_decimal]
-				g = self.g_h_labels[trick_g][0] + self.commafy(digit_rounding) + self.g_h_labels[trick_g][-1]
-				h = self.g_h_labels[trick_h][0] + self.commafy(item[self.e_complement]) + self.g_h_labels[trick_h][-1]
+				digit_rounding = lambda x: {"0": "{:.0f}".format(float(item[x])),"1": "{:.1f}".format(float(item[x])),"2": "{:.2f}".format(float(item[x]))}[self.e_decimal]
+
+				g = self.g_h_labels[trick_g][0] + self.commafy(digit_rounding(self.e_source)) + self.g_h_labels[trick_g][-1]
+				h = self.g_h_labels[trick_h][0] + self.commafy(digit_rounding(self.e_complement) if is_str_float(item[self.e_complement]) else item[self.e_complement]) + self.g_h_labels[trick_h][-1]
 				ts_dict = {
 				    " "        : "",
 				    "‡ (big)":'<tspan dy="-7" font-family="arial" font-size=".7em">{}</tspan>'.format(self.char_care("‡")),
