@@ -214,13 +214,13 @@ class TabFrameConnections(ttk.Frame):
 				label = tk.Label(con, text="From path" if b ==0 else "to path")
 				label.grid(column=b*4+0, row=0, sticky="w")
 				self.data[n][b*2] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2],*pref.menu_e)
+				menu = tk.OptionMenu(con,self.data[n][b*2],"",*pref.menu_e)
 				menu.config(width="2")
 				menu.grid(column=b*4+1, row=0,sticky = "e")
 				label = tk.Label(con, text=", number" if b ==0 else ", number")
 				label.grid(column=b * 4 + 2, row=0, sticky="w")
 				self.data[n][b*2+1] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2+1],*[a+1 for a in range(pref.n_structures)])
+				menu = tk.OptionMenu(con,self.data[n][b*2+1],"",*list(range(1,pref.n_structures+1)))
 				menu.config(width="2")
 				menu.grid(column=b*4+3, row=0,sticky = "e")
 			label = tk.Label(con,text="Color/Width/Strike:")
@@ -244,13 +244,13 @@ class TabFrameComparers(ttk.Frame):
 				label = tk.Label(con, text="From path" if b ==0 else "to path")
 				label.grid(column=b*4+0, row=0, sticky="w")
 				self.data[n][b*2] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2],*pref.menu_e)
+				menu = tk.OptionMenu(con,self.data[n][b*2],"",*pref.menu_e)
 				menu.config(width="2")
 				menu.grid(column=b*4+1, row=0,sticky = "e")
 				label = tk.Label(con, text=", number" if b ==0 else ", number")
 				label.grid(column=b * 4 + 2, row=0, sticky="w")
 				self.data[n][b*2+1] = tk.StringVar()
-				menu = tk.OptionMenu(con,self.data[n][b*2+1],*[a+1 for a in range(pref.n_structures)])
+				menu = tk.OptionMenu(con,self.data[n][b*2+1],"",*list(range(1,pref.n_structures+1)))
 				menu.config(width="2")
 				menu.grid(column=b*4+3, row=0,sticky = "e")
 			label = tk.Label(con,text="Color/Width/Strike:")
@@ -854,8 +854,8 @@ class SvgGenEsp:
 		self.path_options = {a: [[c.get() for c in b] for b in fc(a)] for a in pref.menu_e}
 		# DATA
 		dt = lambda a: enumerate(getattr(note,a).data)
-		fa = lambda idx,c: float(c.get()) if idx == self.e_source-1 else  c.get()
-		fb = lambda b: is_str_float(b[self.e_source-1].get())
+		fa = lambda idx,c: float(c.get().replace(",",".")) if idx == self.e_source-1 else c.get()
+		fb = lambda b: is_str_float(b[self.e_source-1].get().replace(",","."))
 		self.raw_crt = [[[i+1,*[fa(idx,c) for idx,c in enumerate(b)]] for i,b in dt(a) if fb(b)] for a in pref.menu_g]
 		self.raw_crt_dict = {a: b for a, b in zip(pref.menu_e, self.raw_crt) if self.plot_path[a] and b}
 		self.paths = self.set_height()
@@ -1029,10 +1029,12 @@ class SvgGenEsp:
 				z = pref.placement[item[-2]][0 if self.plot_np else 1]
 				trick_g = "g" if self.e_source == 3 else "h"
 				trick_h = "h" if self.e_source == 3 else "g"
-				digit_rounding = lambda x: {"0": "{:.0f}".format(float(item[x])),"1": "{:.1f}".format(float(item[x])),"2": "{:.2f}".format(float(item[x]))}[self.e_decimal]
+				item_rep = lambda x: float(item[x].replace(",",".") if type(item[x]) is str else item[x])
+				digit_rounding = lambda x: {"0": "{:.0f}".format(item_rep(x)),"1": "{:.1f}".format(item_rep(x)),"2": "{:.2f}".format(item_rep(x))}[self.e_decimal]
+
 
 				g = self.g_h_labels[trick_g][0] + self.commafy(digit_rounding(self.e_source)) + self.g_h_labels[trick_g][-1]
-				h = self.g_h_labels[trick_h][0] + self.commafy(digit_rounding(self.e_complement) if is_str_float(item[self.e_complement]) else item[self.e_complement]) + self.g_h_labels[trick_h][-1]
+				h = self.g_h_labels[trick_h][0] + self.commafy(digit_rounding(self.e_complement) if is_str_float(item[self.e_complement].replace(",",".")) else item[self.e_complement]) + self.g_h_labels[trick_h][-1]
 				ts_dict = {
 				    " "        : "",
 				    "‡ (big)":'<tspan dy="-7" font-family="arial" font-size=".7em">{}</tspan>'.format(self.char_care("‡")),
