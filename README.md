@@ -53,7 +53,7 @@ Upgrading from older versions can be done via:
 python3 -m pip install -U mechasvg
 ```
 Alternatively, a windons 10 executable can be downloaded on the following link:
-[mechaSVG-v006.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.6/mechaSVG-v006.exe)
+[mechaSVG-v007.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.7/mechaSVG-v007.exe)
 
 ## Importing .txt and .xlsx
 
