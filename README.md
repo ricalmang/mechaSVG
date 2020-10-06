@@ -111,9 +111,9 @@ I don't actually require users to cite the software at all, so you can take any 
 
 If you intend to cite it, the following citation should suffice:
 
-Angnes, R. A. mechaSVG, GitHub repository, 2020, doi: 10.5281/zenodo.3970267.
+Angnes, R. A. mechaSVG, GitHub repository, 2020, doi: 10.5281/zenodo.4065333.
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3970267.svg)](https://doi.org/10.5281/zenodo.3970267)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4065333.svg)](https://doi.org/10.5281/zenodo.4065333)
 
 ## Acknowledgments
 
