@@ -920,11 +920,15 @@ class SvgGenEsp:
 		return int(value)
 	def char_care(self,text):
 		return str(text).encode("ascii", "xmlcharrefreplace").decode("utf-8")
-	def is_avail(self,name,path_a,num_a,path_b,num_b):
+	def is_avail(self,name,path_a,num_a,path_b,num_b,ignore_same=False):
 		try:
 			first = int(num_a) in [a[0] for a in self.data_dict[path_a]]
 			second = int(num_b) in [a[0] for a in self.data_dict[path_b]]
-			if int(num_a) == int(num_b):
+			if int(num_a) == int(num_b) and path_a == path_b:
+				text = f"{name}: Cannot conect items on same column and path"
+				self.msg.append(text)
+				return False
+			elif int(num_a) == int(num_b) and not ignore_same:
 				text = f"{name}: Cannot conect items on same column"
 				self.msg.append(text)
 				return False
@@ -1075,7 +1079,7 @@ class SvgGenEsp:
 	def graph_comparers(self):
 		if not self.plot[-2] == 1: return
 		for i,a in enumerate(self.comparers):
-			if not self.is_avail(f"Comparer {i+1}",a["A"],a["1"],a["B"],a["2"]): continue
+			if not self.is_avail(f"Comparer {i+1}",a["A"],a["1"],a["B"],a["2"],ignore_same=True): continue
 			start = next(n for n in self.data_dict[a["A"]] if n[0] == int(a["1"]))
 			end = next(n for n in self.data_dict[a["B"]] if n[0] == int(a["2"]))
 			com = [start,end]
@@ -1084,42 +1088,8 @@ class SvgGenEsp:
 				com = [end,start]
 			if a["S4"] == "reverse":
 				com.reverse()
-			ordered = com[0][0] < com[1][0]
-			excess_x = 10 if ordered else -10
-			x1 = self.set_horizontal(com[0][0],self.wide[1] if ordered else self.wide[0])
-			y1 = com[0][6]+ 50
-			x2_mod = 5
-			x2 = {
-				"left":self.set_horizontal(com[1][0],self.wide[0]+x2_mod),
-				"right":self.set_horizontal(com[1][0],self.wide[1]-x2_mod),
-				"midle":self.set_horizontal(com[1][0],int(sum(self.wide)/2)),
-				"p_left":self.set_horizontal(com[1][0],self.wide[0]-2*x2_mod),
-				"xp_left": self.set_horizontal(com[1][0], self.wide[0] - 4*x2_mod),
-				"p_right": self.set_horizontal(com[1][0], self.wide[1] + 2*x2_mod),
-				"xp_right": self.set_horizontal(com[1][0], self.wide[1] + 4*x2_mod),
-				"average": self.set_horizontal((com[1][0]+com[0][0])/2, int(sum(self.wide)/2))
-			}[a["S5"]]
-			x3 = {
-				"left":None,
-				"right":None,
-				"midle":None,
-				"p_left":self.set_horizontal(com[1][0],self.wide[0]),
-				"xp_left": self.set_horizontal(com[1][0], self.wide[0]),
-				"p_right": self.set_horizontal(com[1][0], self.wide[1]),
-				"xp_right": self.set_horizontal(com[1][0], self.wide[1]),
-				"average": self.set_horizontal(com[1][0],self.wide[1] if a["S4"] == "reverse" else self.wide[0])
-			}[a["S5"]]
-			x4 = {
-				"left":None,
-				"right":None,
-				"midle":None,
-				"p_left":x2+excess_x if a["S4"] == "reverse" else x2-excess_x,
-				"xp_left": x2+excess_x if a["S4"] == "reverse" else x2-excess_x,
-				"p_right":x2-excess_x if a["S4"] == "reverse" else x2+excess_x,
-				"xp_right": x2-excess_x if a["S4"] == "reverse" else x2+excess_x,
-				"average": x2-excess_x if a["S4"] == "reverse" else x2-excess_x
-			}[a["S5"]]
-			y2 = com[1][6]+ 50
+			y1 = com[0][6] + 50
+			y2 = com[1][6] + 50
 			color = a["S1"]
 			width = a["S2"]
 			dashed = pref.svg_repl[a["S3"]]
@@ -1131,25 +1101,106 @@ class SvgGenEsp:
 				"fliped_left": [-15, "90"],
 				"fliped_right": [5, "90"]
 			}[a["S6"]]
-			digit_rounding = {"0": "{:.0f}","1": "{:.1f}","2": "{:.2f}"}[self.e_decimal]
-			label = self.commafy(digit_rounding.format(abs(com[0][self.e_source]-com[1][self.e_source])))
-			b = [
-				'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>', # HORIZONTAL
-				'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" />', # VERTICAL
-				'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',# TOP Y ARROW
-				'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',# BOTTOM Y ARROW
-				'    <text x="{}" y="{}" font-size="16" {} text-anchor="middle" fill="{}">{}</text>',#Y label
-				'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>' # HORIZONTAL SHORT
+			ordered = com[0][0] < com[1][0]
+			digit_rounding = {"0": "{:.0f}", "1": "{:.1f}", "2": "{:.2f}"}[self.e_decimal]
+			label = self.commafy(digit_rounding.format(abs(com[0][self.e_source] - com[1][self.e_source])))
+			protruded = ["p_left", "xp_left", "p_right", "xp_right", "average"]
+			x2_mod = 5
+			if com[0][0] == com[1][0]:
+				excess_x = -10 if a["S5"] in ["p_left","xp_left"] else 10
+				x1 = {
+					"left":self.set_horizontal(com[1][0],self.wide[0]),
+					"right":self.set_horizontal(com[1][0],self.wide[1]),
+					"midle":self.set_horizontal(com[1][0],int(sum(self.wide)/2)),
+					"p_left":self.set_horizontal(com[1][0],self.wide[0]),
+					"xp_left": self.set_horizontal(com[1][0], self.wide[0]),
+					"p_right": self.set_horizontal(com[1][0], self.wide[1]),
+					"xp_right": self.set_horizontal(com[1][0], self.wide[1]),
+					"average": self.set_horizontal((com[1][0]+com[0][0])/2, int(sum(self.wide)/2))
+				}[a["S5"]]
+				x2 = {
+					"left":self.set_horizontal(com[1][0],self.wide[0]+x2_mod),
+					"right":self.set_horizontal(com[1][0],self.wide[1]-x2_mod),
+					"midle":self.set_horizontal(com[1][0],int(sum(self.wide)/2)),
+					"p_left":self.set_horizontal(com[1][0],self.wide[0]-2*x2_mod),
+					"xp_left": self.set_horizontal(com[1][0], self.wide[0] - 4*x2_mod),
+					"p_right": self.set_horizontal(com[1][0], self.wide[1] + 2*x2_mod),
+					"xp_right": self.set_horizontal(com[1][0], self.wide[1] + 4*x2_mod),
+					"average": self.set_horizontal((com[1][0]+com[0][0])/2, int(sum(self.wide)/2))
+				}[a["S5"]]
+				label = self.commafy(digit_rounding.format(abs(com[0][self.e_source] - com[1][self.e_source])))
+				b = [
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>',  # HORIZONTAL
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" />',  # VERTICAL
+					'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',  # TOP Y ARROW
+					'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',	# BOTTOM Y ARROW
+					'    <text x="{}" y="{}" font-size="16" {} text-anchor="middle" fill="{}">{}</text>',  # Y label
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>'  # HORIZONTAL SHORT
 
-			]
-			b[0] = b[0].format(x1,y1,x2+excess_x,y1,color,width,dashed)
-			b[1] = b[1].format(x2,y1+excess_y,x2,y2-excess_y,color,width)
-			b[2] = b[2].format(x2,y1+excess_yb,x2-4,y1+excess_y,x2+4,y1+excess_y,color,color)
-			b[3] = b[3].format(x2,y2-excess_yb,x2-4,y2-excess_y,x2+4,y2-excess_y,color,color)
-			b[4] = b[4].format(x2+text_pos[0],int((y2+y1)/2),f'transform="rotate({text_pos[1]},{x2+text_pos[0]},{int((y2+y1)/2)})"',color,self.char_care(label))
-			b[5] = b[5].format(x4, y2, x3, y2, color, width, dashed)
-			protruded = ["p_left","xp_left","p_right","xp_right","average"]
-			self.svg_code.extend(b if a["S5"] in protruded else b[0:5])
+				]
+				b[0] = b[0].format(x1, y1, x2 + excess_x, y1, color, width, dashed)
+				b[1] = b[1].format(x2, y1 + excess_y, x2, y2 - excess_y, color, width)
+				b[2] = b[2].format(x2, y1 + excess_yb, x2 - 4, y1 + excess_y, x2 + 4, y1 + excess_y, color, color)
+				b[3] = b[3].format(x2, y2 - excess_yb, x2 - 4, y2 - excess_y, x2 + 4, y2 - excess_y, color, color)
+				b[4] = b[4].format(x2 + text_pos[0], int((y2 + y1) / 2),
+								   f'transform="rotate({text_pos[1]},{x2 + text_pos[0]},{int((y2 + y1) / 2)})"',
+								   color,
+								   self.char_care(label))
+				b[5] = b[5].format(x1, y2, x2 + excess_x, y2, color, width, dashed)
+				protruded = ["p_left", "xp_left", "p_right", "xp_right", "average"]
+				self.svg_code.extend(b if a["S5"] in protruded else b[1:5])
+			else:
+				excess_x = 10 if ordered else -10
+				x1 = self.set_horizontal(com[0][0],self.wide[1] if ordered else self.wide[0])
+				x2 = {
+					"left":self.set_horizontal(com[1][0],self.wide[0]+x2_mod),
+					"right":self.set_horizontal(com[1][0],self.wide[1]-x2_mod),
+					"midle":self.set_horizontal(com[1][0],int(sum(self.wide)/2)),
+					"p_left":self.set_horizontal(com[1][0],self.wide[0]-2*x2_mod),
+					"xp_left": self.set_horizontal(com[1][0], self.wide[0] - 4*x2_mod),
+					"p_right": self.set_horizontal(com[1][0], self.wide[1] + 2*x2_mod),
+					"xp_right": self.set_horizontal(com[1][0], self.wide[1] + 4*x2_mod),
+					"average": self.set_horizontal((com[1][0]+com[0][0])/2, int(sum(self.wide)/2))
+				}[a["S5"]]
+
+				x3 = {
+					"left":None,
+					"right":None,
+					"midle":None,
+					"p_left":self.set_horizontal(com[1][0],self.wide[0]),
+					"xp_left": self.set_horizontal(com[1][0], self.wide[0]),
+					"p_right": self.set_horizontal(com[1][0], self.wide[1]),
+					"xp_right": self.set_horizontal(com[1][0], self.wide[1]),
+					"average": self.set_horizontal(com[1][0],self.wide[1] if a["S4"] == "reverse" else self.wide[0])
+				}[a["S5"]]
+
+				x4 = {
+					"left":None,
+					"right":None,
+					"midle":None,
+					"p_left":x2+excess_x if a["S4"] == "reverse" else x2-excess_x,
+					"xp_left": x2+excess_x if a["S4"] == "reverse" else x2-excess_x,
+					"p_right":x2-excess_x if a["S4"] == "reverse" else x2+excess_x,
+					"xp_right": x2-excess_x if a["S4"] == "reverse" else x2+excess_x,
+					"average": x2-excess_x if a["S4"] == "reverse" else x2-excess_x
+				}[a["S5"]]
+
+				b = [
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>', # HORIZONTAL
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" />', # VERTICAL
+					'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',# TOP Y ARROW
+					'    <polygon points="{},{} {},{} {},{}" style="fill:{};stroke:{};stroke-width:1"/>',# BOTTOM Y ARROW
+					'    <text x="{}" y="{}" font-size="16" {} text-anchor="middle" fill="{}">{}</text>',#Y label
+					'    <line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}" stroke-width="{}" {}/>' # HORIZONTAL SHORT
+
+				]
+				b[0] = b[0].format(x1,y1,x2+excess_x,y1,color,width,dashed)
+				b[1] = b[1].format(x2,y1+excess_y,x2,y2-excess_y,color,width)
+				b[2] = b[2].format(x2,y1+excess_yb,x2-4,y1+excess_y,x2+4,y1+excess_y,color,color)
+				b[3] = b[3].format(x2,y2-excess_yb,x2-4,y2-excess_y,x2+4,y2-excess_y,color,color)
+				b[4] = b[4].format(x2+text_pos[0],int((y2+y1)/2),f'transform="rotate({text_pos[1]},{x2+text_pos[0]},{int((y2+y1)/2)})"',color,self.char_care(label))
+				b[5] = b[5].format(x4, y2, x3, y2, color, width, dashed)
+				self.svg_code.extend(b if a["S5"] in protruded else b[0:5])
 
 	@functools.lru_cache(maxsize=1)
 	def span_dg(self):
