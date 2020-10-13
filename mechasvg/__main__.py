@@ -28,7 +28,7 @@ class Preferences:
 		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"',"dashed2":'stroke-dasharray="4,4"',"dashed3":'stroke-dasharray="2,2"'}
 		# Random PES generator
 		self.trickster = True # Include random PES generator?
-		self.name = "MechaSVG v 0.0.8"
+		self.name = "MechaSVG v 0.0.9"
 		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
