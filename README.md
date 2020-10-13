@@ -54,7 +54,7 @@ python3 -m mechasvg
 ```
 
 Alternatively, a windons 10 executable can be downloaded on the following link:
-[mechaSVG-v009.exe](https://github.com/ricalmang/mechaSVG/releases/download/v.0.0.9/mechaSVG-v009.exe)
+[mechaSVG-v009.exe](https://github.com/ricalmang/mechaSVG/releases/download/v0.0.9/mechaSVG-v009.exe)
 
 ## Importing .txt and .xlsx
 
