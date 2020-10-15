@@ -42,7 +42,7 @@ The recommended installaion requires python 3.6 or above.
 
 Fresh instalation can be done via:
 ```bash
-python3 -m pip install mechasvg
+python3 -m pip install setuptools mechasvg
 ```
 Upgrading from older versions can be done via:
 ```bash
