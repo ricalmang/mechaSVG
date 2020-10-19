@@ -1,4 +1,4 @@
-import os, random, datetime, functools, math, sys
+import os, random, datetime, functools, math, sys, subprocess
 try:
 	import tkinter as tk
 	from tkinter import ttk, filedialog, messagebox
@@ -28,7 +28,7 @@ class Preferences:
 		self.svg_repl = {"full": "","dashed":'stroke-dasharray="10,10"',"dashed1":'stroke-dasharray="6,6"',"dashed2":'stroke-dasharray="4,4"',"dashed3":'stroke-dasharray="2,2"'}
 		# Random PES generator
 		self.trickster = True # Include random PES generator?
-		self.name = "MechaSVG v 0.0.9"
+		self.name = "MechaSVG v 0.1.0"
 		######################## YOU ARE PROBABLY BETTER OFF NOT MESSING WITH THE FOLLOWING ############################
 		self.menu_c = list(self.svg_repl.keys())
 		# TDI and TDTS placement corrections
@@ -134,40 +134,39 @@ class TabFramePaths(ttk.Frame):
 		#########
 		self._build_options(z)
 		#########
-		self.widths_a = [3, 6,16,9,10,3,3,9]
-		self.widths_b = [3, 2, 19, 13, 11, 1, 1, 6]
-		for a,b,c in zip([0,1,2,3,4,5,6,7],[" ","Type",'Structure Name','Free Energy','Enthalpy',"Move","",'Alignment'],self.widths_a):
+		self.widths = [3,3,16,10,10,1,1,6]
+		for a,b,c in zip(range(len(self.widths)),[" ","Type",'Structure Name','Free Energy','Enthalpy',"Move","",'Alignment'],self.widths):
 			if a ==6: continue
-			label = tk.Label(z, text=b,width=sum(self.widths_a[5:7]) if a ==5 else c)
+			label = tk.Label(x, text=b,width=sum(self.widths[5:7]) if a ==5 else c)
 			if a == 5: label.grid(column=a, row=9, rowspan=1, columnspan = 2,sticky="news")
 			else: label.grid(column=a, row=9, rowspan=1,sticky="news")
 		#########
 		self.data = [[None,None,None,None,None] for _ in range(pref.n_structures)]
 		#########
 		for n in range(pref.n_structures):
-			label = tk.Label(x, text='#{}'.format(n+1),width=self.widths_b[0])
+			label = tk.Label(x, text='#{}'.format(n+1),width=self.widths[0])
 			label.grid(column=0, row=10+n, rowspan=1)
 			for b in [1,2,3]:
-				self.data[n][b] = tk.Entry(x,justify=tk.CENTER,bd=2,width=self.widths_b[1+b])
+				self.data[n][b] = tk.Entry(x,justify=tk.CENTER,bd=2,width=self.widths[1+b])
 				self.data[n][b].insert(0,"")
 				self.data[n][b].grid(column=1+b, row=10+n,padx="0",sticky="news")
 			if not n == 0:
 				button = tk.Button(x, text=u'\u2191', command=lambda x = n: self._move(x,x-1), padx="1")
-				button.config(width=self.widths_b[5])
+				button.config(width=self.widths[5])
 				button.grid(column=5, row=10+n)
 			if not n+1 == pref.n_structures:
 				button = tk.Button(x, text=u'\u2193', command=lambda x = n: self._move(x,x+1), padx="1")
-				button.config(width=self.widths_b[6])
+				button.config(width=self.widths[6])
 				button.grid(column=6, row=10+n)
 			self.data[n][0] = tk.StringVar()
 			menu = tk.OptionMenu(x,self.data[n][0],*pref.menu_z)
 			self.data[n][0].set(pref.menu_z[0])
-			menu.config(width=self.widths_b[1])
+			menu.config(width=self.widths[1])
 			menu.grid(column=1, row=10+n)
 			self.data[n][4] = tk.StringVar()
 			menu = tk.OptionMenu(x,self.data[n][4],*pref.menu_d)
 			self.data[n][4].set(pref.menu_d[1])
-			menu.config(width=self.widths_b[7])
+			menu.config(width=self.widths[7])
 			menu.grid(column=7, row=10+n)
 	def _build_options(self,x):
 		self.option_menu = ttk.Frame(x)
@@ -780,7 +779,14 @@ class GeneralMenu(tk.LabelFrame):
 	def run_data_a(self):
 		self.return_svg(promp=False); os.system(self.command.get())
 	def run_data_b(self):
-		self.return_svg(promp=False); os.startfile(os.path.join(os.getcwd(), ".E_profile.svg"))
+		self.return_svg(promp=False)
+		filename = os.path.join(os.getcwd(), ".E_profile.svg")
+		if sys.platform == "win32" or os.name == "nt":
+			os.startfile(filename)
+		else:
+			opener = "open" if sys.platform == "darwin" else "xdg-open"
+			subprocess.call([opener, filename])
+
 	def return_svg(self,promp=True):
 		svg_name = None if promp == False else self.save_svg_as()
 		msg = SvgGenEsp(self)

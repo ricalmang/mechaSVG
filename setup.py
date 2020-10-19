@@ -3,7 +3,7 @@ with open("mechasvg\\supl\\README.txt", "r") as fh:
     long_description = fh.read()
 setuptools.setup(
     name="mechaSVG",
-    version="0.0.9",
+    version="0.1.0",
     author="Ricardo Almir Angnes",
     author_email="ricardo_almir@hotmail.com",
     description="mechaSVG is a python & tk application for creating good-looking energy profile diagrams as Scalable Vector Graphics.",
@@ -11,7 +11,7 @@ setuptools.setup(
 	license="MIT",
     url="https://github.com/ricalmang/mechaSVG",
 	keywords = ['chemistry'],
-	install_requires = ["openpyxl"],
+	install_requires = ["openpyxl","os","random","datetime","functools","math","sys","subprocess","setuptools"],
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
