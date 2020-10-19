@@ -659,12 +659,12 @@ class GeneralMenu(tk.LabelFrame):
 			self.f = file_n
 
 	def fill_in(self):
-		size = random.random()
+		size = random.random()+0.5
 		max_value = min(len(pref.alphabet), pref.n_structures)
-		lenght = random.randint(1,max_value)
+		lenght = random.randint(5,12)
 		tab = getattr(note,[a for a in pref.menu_g][note.index(note.select())])
 		for i,n in zip(range(max_value),pref.alphabet):
-			value = size*random.randrange(-100,100)
+			value = size*random.randrange(-20,20)-i*size*2
 			for idx in range(len(tab.data[i])):
 				if idx == 1:
 					tab.data[i][idx].delete(0, tk.END)
