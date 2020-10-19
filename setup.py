@@ -11,7 +11,7 @@ setuptools.setup(
 	license="MIT",
     url="https://github.com/ricalmang/mechaSVG",
 	keywords = ['chemistry'],
-	install_requires = ["openpyxl","os","random","datetime","functools","math","sys","subprocess","setuptools"],
+	install_requires = ["openpyxl","setuptools"],
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
