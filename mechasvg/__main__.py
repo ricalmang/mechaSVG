@@ -136,8 +136,8 @@ class TabFramePaths(ttk.Frame):
 		#########
 		self.widths = [3,3,16,10,10,1,1,6]
 		for a,b,c in zip(range(len(self.widths)),[" ","Type",'Structure Name','Free Energy','Enthalpy',"Move","",'Alignment'],self.widths):
-			if a ==6: continue
-			label = tk.Label(x, text=b,width=sum(self.widths[5:7]) if a ==5 else c)
+			if a == 6: continue
+			label = tk.Label(x, text=b,width=4 if a == 5 else c)
 			if a == 5: label.grid(column=a, row=9, rowspan=1, columnspan = 2,sticky="news")
 			else: label.grid(column=a, row=9, rowspan=1,sticky="news")
 		#########
@@ -240,7 +240,7 @@ class TabFrameComparers(ttk.Frame):
 			con = tk.LabelFrame(self,text="Comparer {}".format(n+1))
 			con.grid(column=0, row=n*2,  columnspan=5, pady="0",padx="2", rowspan=2,sticky="news")
 			for b in range(2):
-				label = tk.Label(con, text="From path" if b ==0 else "to path")
+				label = tk.Label(con, text="Path:" if b ==0 else ", vs. path:")
 				label.grid(column=b*4+0, row=0, sticky="w")
 				self.data[n][b*2] = tk.StringVar()
 				menu = tk.OptionMenu(con,self.data[n][b*2],"",*pref.menu_e)
@@ -271,7 +271,7 @@ class TabFrameComparers(ttk.Frame):
 			for a, b in zip([0, 1, 2], [x, y, z]):
 				self.data[n][a+4+3] = tk.StringVar()
 				self.color_menu = tk.OptionMenu(con, self.data[n][a+4+3], *b)
-				self.data[n][a+4+3].set(b[0])
+				self.data[n][a+4+3].set(b[{0:0,1:6,2:0}[a]])
 				self.color_menu.config(width="12")
 				self.color_menu.grid(column=2 + a*2,columnspan =2, row=2)
 
@@ -314,7 +314,7 @@ class GeneralMenu(tk.LabelFrame):
 
 	def _build_main_opt(self):
 		box = self.framefy("Main")
-		options = ["Use enthalpy instead of free energy","Use comma as decimal","Include complementary (H or G values)"]
+		options = ["Plot and use enthalpy instead of free energy","Use comma as decimal separator","Include complementary data (H or G values)"]
 		for i,a in enumerate(options):
 			self.main.append(tk.IntVar(value=0))
 			c1 = tk.Checkbutton(box, text=a, variable=self.main[i], onvalue=1, offvalue=0)
@@ -324,7 +324,7 @@ class GeneralMenu(tk.LabelFrame):
 	def _build_span_opt(self):
 		box = self.framefy("Span")
 		box.grid_columnconfigure(1, weight=1)
-		options = ["Atempt span","Irrespective of type (TS/INT)","Big label arrow"]
+		options = ["Atempt span calculation","Ignore structure type (TS/INT)","Use big indicator arrows"]
 		for i,a in enumerate(options):
 			self.span.append(tk.IntVar(value=0))
 			c1 = tk.Checkbutton(box, text=a, variable=self.span[i], onvalue=1, offvalue=0)
@@ -332,7 +332,7 @@ class GeneralMenu(tk.LabelFrame):
 		label = tk.Label(box, text="Input units:")
 		label.grid(column=1, row=1,sticky="news")
 		self.span.append(tk.StringVar())
-		options = ["kcal/mol","kJ/mol"]
+		options = ["kcal/mol","kJ/mol","eV"]
 		menu = tk.OptionMenu(box, self.span[-1], *options)
 		self.span[-1].set(options[0])
 		menu.config(width="8")
@@ -364,7 +364,7 @@ class GeneralMenu(tk.LabelFrame):
 		menu.grid(column=1, row=1,sticky="w")
 
 		options = ["0","1","2"]
-		label = tk.Label(box, text="Grid decimal:")
+		label = tk.Label(box, text="Grid decimal places:")
 		label.grid(column=0, row=2, sticky="w")
 		self.style.append(tk.StringVar())
 		self.style[-1].set(options[1])
@@ -382,7 +382,7 @@ class GeneralMenu(tk.LabelFrame):
 		b = [10 * n for n in range(11)]
 		c = [5 * n + 60 for n in range(11)]
 		options = [a,b,c]
-		for i, x , y in zip(range(3), [["Base width:"], ["Xstart offset:","Xend offset"], ["X spacing:"]], options ):
+		for i, x , y in zip(range(3), [["Plateau width:"], ["Starting offset (X):","Ending offset (X)"], ["Plateau spacing:"]], options ):
 			for idx,z in enumerate(x):
 				label = tk.Label(box, text=z)
 				label.grid(column=idx*2, row=i, sticky="w")
@@ -400,7 +400,7 @@ class GeneralMenu(tk.LabelFrame):
 		a = [5 * n for n in range(11)]
 		b = [5 * n for n in range(11)]
 		options = [a,b]
-		for i, x , y in zip(range(2), ["Top displacement", "Bottom displacement"], options):
+		for i, x , y in zip(range(2), ["Top offset (Y)", "Bottom offset (Y)"], options):
 			label = tk.Label(box, text=x)
 			label.grid(column=0, row=i, sticky="w")
 			self.vertical.append(tk.StringVar())
@@ -504,7 +504,7 @@ class GeneralMenu(tk.LabelFrame):
 			self.titles[a].insert(0, b)
 			self.titles[a].grid(column=1, row=a, padx="0", sticky="news")
 	def _build_loadsave(self,idx):
-		box = self.boxify("Close, Load & Save States", idx)
+		box = self.boxify("Close, Load & Save Data", idx)
 		label = tk.Label(box, text="Path's and connection's info")
 		label.grid(column=0,row=0,sticky="w")
 		button = tk.Button(box, text="Close", command=self._blank_state, padx="1")
@@ -1210,127 +1210,131 @@ class SvgGenEsp:
 
 	@functools.lru_cache(maxsize=1)
 	def span_dg(self):
-		if not self.span_worthy: return
-		if len(self.plot_dict) != 1:
-			self.span_worthy = False
-			self.msg.append("This software only performs span analysis if one and only one reaction path is ploted\n")
-			return
-		only_plot = list(self.plot_dict.values())[0]
-		r_const = {"kcal/mol": 0.0019872, "kJ/mol": 0.0083144}[self.span["units"]]
-		boltz_const = {"kcal/mol":3.29762e-27,"kJ/mol":1.380649e-26}[self.span["units"]]
-		planck_const = {"kcal/mol":1.58367e-37,"kJ/mol":6.6260755e-37}[self.span["units"]]
-		delta_e = only_plot[-1][self.e_source]-only_plot[0][self.e_source]
-		limit = {"kcal/mol": 4, "kJ/mol": 16.736}[self.span["units"]]
-		if not len(only_plot) > 2:
-			text = "Need more than two structures for span analysis\n"
-			self.msg.append(text)
-			self.span_worthy = False; return
-
-		first = min(a[0] for a in only_plot)
-		last =  max(a[0] for a in only_plot)
-		text = "Analysis assumes structures #{} and #{} have the same geometry,"
-		text += " but are energeticaly distiguished by the {} of the reaction.\n"
-		self.msg.append(text.format(first, last, "exergonicity" if self.e_source == 3 else "exotermicity"))
-		if self.e_source != 3:
-			text = "WARNING: Data above should only be used after carefull consideration."
-			text += "Enthalpy values were employed in place of Gibbs Free energy\n"
-			self.msg.append(text)
-		# Is it a TS or INT?
-		if self.span["irrespective"] != 1:
-			give_up = False
-			if not only_plot[0][1] == only_plot[-1][1]:
-				text = "#{} and #{} must be the same type: TS or INT\n"
-				self.msg.append(text.format(only_plot[0][0],only_plot[-1][0]))
+		try:
+			if not self.span_worthy: return
+			if len(self.plot_dict) != 1:
+				self.span_worthy = False
+				self.msg.append("This software only performs span analysis if one and only one reaction path is ploted\n")
 				return
-			for i,a in enumerate(only_plot):
-				if i == 0 or i+1 == len(only_plot):
-					top = only_plot[1][self.e_source] < only_plot[0][self.e_source] and only_plot[-1][self.e_source] > only_plot[-2][self.e_source]
-				else:
-					top = only_plot[i-1][self.e_source] < a[self.e_source] > only_plot[i+1][self.e_source]
-				if top and a[1] == "TS":
-					continue
-				elif top and a[1] == "INT":
-					text = "Are you sure #{} is not a TS? It is directly connected to structures lower in both forward and backwards direction!\n"
-					self.msg.append(text.format(a[0]))
-				elif not top and a[1] == "TS":
-					text = "Are you sure #{} is not an INT? It is directly connected to structure(s) higher in energy!\n"
-					self.msg.append(text.format(a[0]))
-				elif a[1] not in ["TS","INT"]:
-					text = "#{} should be set as either TS or INT, otherwise it will be ploted but excluded from analysis\n"
-					self.msg.append(text.format(a[0]))
-					give_up = True
-			if give_up:
-				return
-		#TOF
-		all_it = []
-		for idx_a, a in enumerate(only_plot[:-1]):
-			for idx_b,b in enumerate(only_plot[:-1]):
-				all_it.append([a, a[self.e_source] - b[self.e_source] - delta_e if idx_b < idx_a else a[self.e_source] - b[self.e_source] , b])
-
-		if self.span["irrespective"] != 1:
-			all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS", a[2][1] == "INT"])]
-		if self.span["irrespective"] == 1:
-			text = "WARNING: Data above should only be used after carefull consideration."
-			text += "Equations were applied on the assumption that all structures are both intermediates and transition states simultaneously\n"
-			self.msg.append(text)
-		if all([self.span["irrespective"] != 1, all_it, self.e_source == 3]):
-			text = "Ref.: Kozuch, S., Shaik, S. Acc. Chem. Res. 2011, 44, 101.\n"
-			self.msg.append(text)
-		if all_it:
-			denominator = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it)
-			tof = (((math.exp(-delta_e / (r_const * self.temperature)) - 1) / denominator) * self.temperature * boltz_const) / planck_const
-			all_ts = list(dict.fromkeys([a[0][0] for a in all_it]))
-			all_int = list(dict.fromkeys([a[2][0] for a in all_it]))
-			x_tof_i = []
-			x_tof_ts = []
-			for x in all_int:
-				a = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it if x == a[2][0]) / denominator
-				x_tof_i.append([x, a * 100])
-			for x in all_ts:
-				a = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it if x == a[0][0]) / denominator
-				x_tof_ts.append([x, a * 100])
-			self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_i))
-			self.msg.append("X(tof) for intermediates:")
-			self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_ts))
-			self.msg.append("X(tof) for transition states:")
-			self.msg.append("TOF as catalytic flux law: {:5e} /h\n".format(tof * 3600))
-			if abs(tof) > 1e8:
-				self.msg.append("ALERT: Please consider the possibility of diffusion control rates\n")
-		#CONDITIONALS FOR SPAN
-		if delta_e >= 0:
-			self.msg.append("Reaction is {}! Span will not be computed!\n".format("endergonic" if self.e_source == 3 else "endotermic"))
-			self.span_worthy = False; return
-		if not all(a[1] in ["TS","INT"] for a in only_plot) and self.span["irrespective"] != 1:
-			text = "All structures have to be identified as either transition states or intermediates for a strict span analysis."
-			text += " Irrestrictive analysis may be caried out by checking the 'irrespective of type(TS/INT)' box."
-			text += " No span analysis will be conducted\n"
-			self.msg.append(text)
-			self.span_worthy = False; return
-		# SPAN
-		all_it = []
-		for idx_a, a in enumerate(only_plot[:-1]):
-			for idx_b,b in enumerate(only_plot[:-1]):
-				all_it.append([a, a[self.e_source] - b[self.e_source] + delta_e if idx_a <idx_b else a[self.e_source] - b[self.e_source], b])
-		if self.span["irrespective"] != 1:
-			all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS",a[2][1] == "INT"])]
-		#for a in all_it: print(a)
-		if not all_it:
-			self.span_worthy = False
-			self.msg.append("No states found!\n")
-			return
-		span = max(all_it, key=lambda a: a[1])
-		if span[1] <= 0:
-			self.msg.append("The reaction appears to barrierless and therefore no span will be calculated!\n")
-			self.span_worthy = False
-			return
-		for i,a in enumerate(all_it):
-			if 0 <= a[1] > span[1] - limit and any(span[n][0] != a[n][0] for n in [0,2]):
-				text = "WARNING: Span from #{} to #{} is only {:.2f} {} lower".format(a[0][0],a[2][0],span[1]-a[1],self.span["units"])
-				text += " than #{} to #{} and may influence the rate determining state\n".format(span[0][0],span[2][0])
+			only_plot = list(self.plot_dict.values())[0]
+			r_const = {"kcal/mol": 0.0019872, "kJ/mol": 0.0019872 * 4.184, "eV": 0.0019872 * 0.04336}[self.span["units"]]
+			boltz_const = {"kcal/mol":3.29762e-27,"kJ/mol":3.29762e-27 * 4.184,"eV": 3.29762e-27 * 0.04336}[self.span["units"]]
+			planck_const = {"kcal/mol":1.58367e-37,"kJ/mol":1.58367e-37 * 4.184, "eV":1.58367e-37 * 0.04336}[self.span["units"]]
+			delta_e = only_plot[-1][self.e_source]-only_plot[0][self.e_source]
+			kcal_limit = 3.5
+			limit = {"kcal/mol": kcal_limit, "kJ/mol": kcal_limit * 4.184,"eV": kcal_limit * 0.04336}[self.span["units"]]
+			if not len(only_plot) > 2:
+				text = "Need more than two structures for span analysis\n"
 				self.msg.append(text)
-		tof_span = (((math.exp(-span[1]/(r_const*self.temperature))))*self.temperature*boltz_const)/planck_const
-		self.msg.append("TOF from span: {:5e} /h\n".format(tof_span*3600))
-		return span
+				self.span_worthy = False; return
+
+			first = min(a[0] for a in only_plot)
+			last =  max(a[0] for a in only_plot)
+			text = "Analysis assumes structures #{} and #{} have the same geometry,"
+			text += " but are energeticaly distiguished by the {} of the reaction.\n"
+			self.msg.append(text.format(first, last, "exergonicity" if self.e_source == 3 else "exotermicity"))
+			if self.e_source != 3:
+				text = "WARNING: Data above should only be used after carefull consideration."
+				text += "Enthalpy values were employed in place of Gibbs Free energy\n"
+				self.msg.append(text)
+			# Is it a TS or INT?
+			if self.span["irrespective"] != 1:
+				give_up = False
+				if not only_plot[0][1] == only_plot[-1][1]:
+					text = "#{} and #{} must be the same type: TS or INT\n"
+					self.msg.append(text.format(only_plot[0][0],only_plot[-1][0]))
+					return
+				for i,a in enumerate(only_plot):
+					if i == 0 or i+1 == len(only_plot):
+						top = only_plot[1][self.e_source] < only_plot[0][self.e_source] and only_plot[-1][self.e_source] > only_plot[-2][self.e_source]
+					else:
+						top = only_plot[i-1][self.e_source] < a[self.e_source] > only_plot[i+1][self.e_source]
+					if top and a[1] == "TS":
+						continue
+					elif top and a[1] == "INT":
+						text = "Are you sure #{} is not a TS? It is directly connected to structures lower in both forward and backwards direction!\n"
+						self.msg.append(text.format(a[0]))
+					elif not top and a[1] == "TS":
+						text = "Are you sure #{} is not an INT? It is directly connected to structure(s) higher in energy!\n"
+						self.msg.append(text.format(a[0]))
+					elif a[1] not in ["TS","INT"]:
+						text = "#{} should be set as either TS or INT, otherwise it will be ploted but excluded from analysis\n"
+						self.msg.append(text.format(a[0]))
+						give_up = True
+				if give_up:
+					return
+			#TOF
+			all_it = []
+			for idx_a, a in enumerate(only_plot[:-1]):
+				for idx_b,b in enumerate(only_plot[:-1]):
+					all_it.append([a, a[self.e_source] - b[self.e_source] - delta_e if idx_b < idx_a else a[self.e_source] - b[self.e_source] , b])
+
+			if self.span["irrespective"] != 1:
+				all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS", a[2][1] == "INT"])]
+			if self.span["irrespective"] == 1:
+				text = "WARNING: Data above should only be used after carefull consideration."
+				text += "Equations were applied on the assumption that all structures are both intermediates and transition states simultaneously\n"
+				self.msg.append(text)
+			if all([self.span["irrespective"] != 1, all_it, self.e_source == 3]):
+				text = "Ref.: Kozuch, S., Shaik, S. Acc. Chem. Res. 2011, 44, 101.\n"
+				self.msg.append(text)
+			if all_it:
+				denominator = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it)
+				tof = (((math.exp(-delta_e / (r_const * self.temperature)) - 1) / denominator) * self.temperature * boltz_const) / planck_const
+				all_ts = list(dict.fromkeys([a[0][0] for a in all_it]))
+				all_int = list(dict.fromkeys([a[2][0] for a in all_it]))
+				x_tof_i = []
+				x_tof_ts = []
+				for x in all_int:
+					a = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it if x == a[2][0]) / denominator
+					x_tof_i.append([x, a * 100])
+				for x in all_ts:
+					a = sum(math.exp(a[1] / (self.temperature * r_const)) for a in all_it if x == a[0][0]) / denominator
+					x_tof_ts.append([x, a * 100])
+				self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_i))
+				self.msg.append("X(tof) for intermediates:")
+				self.msg.append("".join("#{:>5}: {:>7.2f}% \n".format(*a) for a in x_tof_ts))
+				self.msg.append("X(tof) for transition states:")
+				self.msg.append("TOF as catalytic flux law: {:5e} /h\n".format(tof * 3600))
+				if abs(tof) > 1e8:
+					self.msg.append("ALERT: Please consider the possibility of diffusion control rates\n")
+			#CONDITIONALS FOR SPAN
+			if delta_e >= 0:
+				self.msg.append("Reaction is {}! Span will not be computed!\n".format("endergonic" if self.e_source == 3 else "endotermic"))
+				self.span_worthy = False; return
+			if not all(a[1] in ["TS","INT"] for a in only_plot) and self.span["irrespective"] != 1:
+				text = "All structures have to be identified as either transition states or intermediates for a strict span analysis."
+				text += " Irrestrictive analysis may be caried out by checking the 'irrespective of type(TS/INT)' box."
+				text += " No span analysis will be conducted\n"
+				self.msg.append(text)
+				self.span_worthy = False; return
+			# SPAN
+			all_it = []
+			for idx_a, a in enumerate(only_plot[:-1]):
+				for idx_b,b in enumerate(only_plot[:-1]):
+					all_it.append([a, a[self.e_source] - b[self.e_source] + delta_e if idx_a <idx_b else a[self.e_source] - b[self.e_source], b])
+			if self.span["irrespective"] != 1:
+				all_it = [a for a in all_it if all([a[0][0] != a[2][0],a[0][1] == "TS",a[2][1] == "INT"])]
+			#for a in all_it: print(a)
+			if not all_it:
+				self.span_worthy = False
+				self.msg.append("No states found!\n")
+				return
+			span = max(all_it, key=lambda a: a[1])
+			if span[1] <= 0:
+				self.msg.append("The reaction appears to barrierless and therefore no span will be calculated!\n")
+				self.span_worthy = False
+				return
+			for i,a in enumerate(all_it):
+				if 0 <= a[1] > span[1] - limit and any(span[n][0] != a[n][0] for n in [0,2]):
+					text = "WARNING: Span from #{} to #{} is only {:.2f} {} lower".format(a[0][0],a[2][0],span[1]-a[1],self.span["units"])
+					text += " than #{} to #{} and may influence the rate determining state\n".format(span[0][0],span[2][0])
+					self.msg.append(text)
+			tof_span = (((math.exp(-span[1]/(r_const*self.temperature))))*self.temperature*boltz_const)/planck_const
+			self.msg.append("TOF from span: {:5e} /h\n".format(tof_span*3600))
+			return span
+		except OverflowError:
+			self.msg.append("TOF calculation failed due to floating point overflow! Please review your data and units ({}).".format(self.span["units"]))
 
 	@functools.lru_cache(maxsize=1)
 	def graph_span(self):
@@ -1349,22 +1353,23 @@ class SvgGenEsp:
 				# TDI arrow big
 				# print(self.data)
 				x = tdi_correct[next(a for a in only_plot if a[0] == data[1][0])[5]] - 40
-				p = [self.set_horizontal(data[1][0], 10), data[1][1] + x]
+				p = [self.set_horizontal(data[1][0], 30), data[1][1] + x]
 				a = [
 					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDI</text>',
-					'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
-				a[0] = a[0].format(p[0] + 20, p[1])
-				a[1] = a[1].format(10 + p[0], 10 + p[1], 30 + p[0], 40 + p[1], 40 + p[0], 20 + p[0], 70 + p[1], 0 + p[0])
+					'    <path d=" M {} {} L {} {} L {} {} L {} {} L {} {} L {} {} L {} {} Z "/>']
+				arrow_size = [10, -70, -10, -70, -10, -40, -20, -40, 0, -10, 20, -40, 10, -40]
+				a[0] = a[0].format(p[0], p[1]+35)
+				a[1] = a[1].format(*[int(j/3)+p[0] if i%2 == 0 else int(j/3)+p[1]+70 for i,j in enumerate(arrow_size)])
 				self.svg_code.extend(a)
 				# TDTS arrow
 				x = tdts_correct[next(a for a in only_plot if a[0] == data[0][0])[5]] + 140
-				p = [self.set_horizontal(data[0][0], 50), data[0][1] + x]
+				p = [self.set_horizontal(data[0][0], 30), data[0][1] + x]
 				a = [
 					'    <text x="{}" y="{}" text-anchor="middle" fill="black">TDTS</text>',
-					'    <path d=" M {0} {1} L {2} {1} L {2} {3} L {4} {3} L {5} {6} L {7} {3} L {0} {3} Z "/>']
-				a[0] = a[0].format(p[0] - 20, p[1] + 10)
-				a[1] = a[1].format(-10 + p[0], -10 + p[1], -30 + p[0], -40 + p[1], -40 + p[0], -20 + p[0], -70 + p[1],
-								   0 + p[0])
+					'    <path d=" M {} {} L {} {} L {} {} L {} {} L {} {} L {} {} L {} {} Z "/>']
+				arrow_size = [10, -10, -10, -10, -10, -40, -20, -40, 0, -70, 20, -40, 10, -40]
+				a[0] = a[0].format(p[0], p[1] -25)
+				a[1] = a[1].format(*[int(j/3)+p[0] if i%2 == 0 else int(j/3)+p[1]-43 for i,j in enumerate(arrow_size)])
 				self.svg_code.extend(a)
 			else:
 				# TDI arrow
@@ -1389,7 +1394,7 @@ class SvgGenEsp:
 			# dg and span anotations
 			a = [
 				'    <text x="120" y="450" text-anchor="left" fill="black">Delta = {}</text>',
-				'    <text x="120" y="470" text-anchor="left" fill="black">Span = {}</text>']
+				'    <text x="120" y="465" text-anchor="left" fill="black">Span = {}</text>']
 			a[0] = a[0].format(self.commafy("{:.2f}".format(delta_e)))
 			a[1] = a[1].format(self.commafy("{:.2f}".format(span)))
 			self.svg_code.extend(a)
@@ -1446,7 +1451,7 @@ def initialize():
 	menu.grid(column=0, row=0,  columnspan=1, pady="0",padx="0", rowspan=1,sticky="news")
 	set_cw(window)
 	set_rw(window)
-	w,h = 925, 685
+	w,h = 925 if sys.platform == "win32" or os.name == "nt" else 1000, 685
 	ws = window.winfo_screenwidth() # width of the screen
 	hs = window.winfo_screenheight() # height of the screen
 	window.minsize(w,h)

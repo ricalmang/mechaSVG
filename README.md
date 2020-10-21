@@ -7,7 +7,7 @@ mechaSVG is a python & tk application for creating good-looking energy profile d
 ## Latest updates
 –Various graph styles and personalization options added.\
 –Make energy comparisons betwen structures.\
-–Plot up to 30 structures 2D PES (Potential Energy Surface).\
+–Plot up to 30 structures per 2D PES (Potential Energy Surface).\
 –Slight modifications to the user interface.\
 –Support for ".txt" and ".xlsx" imports and exports added. Please refer to section "**Importing .txt and .xlsx**" for information about importing these file types.
 
