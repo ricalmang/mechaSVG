@@ -4,7 +4,6 @@ try:
 	from tkinter import ttk, filedialog, messagebox
 except ImportError as message:
 	print(message)
-	print()
 	print("Please make sure you have python3, tkinter and ttk installed")
 	input("Press enter to leave")
 	exit()
@@ -1002,15 +1001,15 @@ class SvgGenEsp:
 		for item in steps:
 			value = int(self.set_single_height(item))
 			if 50 < value < 465:
-				c = [
-					'    <line x1="100" y1="{0}" x2="105" y2="{0}" stroke="black" stroke-width="2"/>',
-					'    <text x="80" y="{}" text-anchor="middle" fill="black">{}</text>']
 				item = {
 					"0":"{:.0f}".format(item),
 					"1":"{:.1f}".format(item),
 					"2":"{:.02f}".format(item)
 				}[self.grid_decimal]
 				item = self.commafy(item)
+				c = [
+					'    <line x1="100" y1="{0}" x2="105" y2="{0}" stroke="black" stroke-width="2"/>',
+					'    <text x="80" y="{}" text-anchor="middle" fill="black">{}</text>']
 				c[0] = c[0].format(value)
 				c[1] = c[1].format(value,item)
 				self.svg_code.extend(c)
@@ -1041,7 +1040,6 @@ class SvgGenEsp:
 				trick_h = "h" if self.e_source == 3 else "g"
 				item_rep = lambda x: float(item[x].replace(",",".") if type(item[x]) is str else item[x])
 				digit_rounding = lambda x: {"0": "{:.0f}".format(item_rep(x)),"1": "{:.1f}".format(item_rep(x)),"2": "{:.2f}".format(item_rep(x))}[self.e_decimal]
-
 
 				g = self.g_h_labels[trick_g][0] + self.commafy(digit_rounding(self.e_source)) + self.g_h_labels[trick_g][-1]
 				h = self.g_h_labels[trick_h][0] + self.commafy(digit_rounding(self.e_complement) if is_str_float(item[self.e_complement].replace(",",".")) else item[self.e_complement]) + self.g_h_labels[trick_h][-1]
