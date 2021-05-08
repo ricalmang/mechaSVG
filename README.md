@@ -40,9 +40,13 @@ Moreover, **Inkscape** can save them in many different image formats including *
 
 The recommended installaion requires python 3.6 or above.
 
-Fresh instalation can be done via:
+Fresh installation can be done via:
 ```bash
 python3 -m pip install setuptools mechasvg
+```
+Installation with anaconda can be via:
+```bash
+pip install mechasvg
 ```
 Upgrading from older versions can be done via:
 ```bash
