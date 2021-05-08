@@ -52,6 +52,10 @@ The program can be run via:
 ```bash
 python3 -m mechasvg
 ```
+Uninstalling the package can be done via:
+```bash
+pip uninstall mechasvg
+```
 
 Alternatively, a Windons 10 executable can be downloaded on the following link:\
 [**mechaSVG-v011.exe**](https://github.com/ricalmang/mechaSVG/releases/download/v0.1.1/mechaSVG-v011.exe)
